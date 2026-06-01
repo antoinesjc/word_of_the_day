@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word of the Day — Mandarin Zest</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --orange:#f37a48;--orange-dark:#d95f2c;--orange-light:#f8dacd;
+    --green:#228b22;--green-dark:#1a6b1a;--green-light:#e0f4e0;
+    --white:#ffffff;--ink:#1c1c1c;--ink-mid:#555555;--ink-light:#999999;
+    --surface:#fdfcfa;--border:#ecddd5;
+  }
+
+  body {
+    font-family:'Outfit',sans-serif;
+    background:var(--surface);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding:1rem;
+  }
+
+  .widget {
+    width:100%;
+    max-width:380px;
+    background:var(--white);
+    border:1px solid var(--border);
+    border-radius:20px;
+    overflow:hidden;
+    position:relative;
+  }
+
+  /* Top gradient bar */
+  .widget::before {
+    content:'';
+    position:absolute;
+    top:0;left:0;right:0;
+    height:4px;
+    background:linear-gradient(90deg,var(--orange),var(--green));
+  }
+
+  /* Header */
+  .header {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0.875rem 1.25rem;
+    border-bottom:1px solid var(--border);
+  }
+  .wotd-header-label {
+    font-size:11px;font-weight:600;letter-spacing:0.12em;
+    text-transform:uppercase;color:var(--orange);
+  }
+
+  .date-badge {
+    font-size:11px;font-weight:500;
+    color:var(--ink-light);
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:3px 10px;
+  }
+
+  /* Body */
+  .body {
+    padding:1.5rem 1.25rem 1.25rem;
+    text-align:center;
+  }
+
+  .wotd-label {
+    font-size:10px;font-weight:600;letter-spacing:0.12em;
+    text-transform:uppercase;color:var(--orange);
+    margin-bottom:1rem;
+  }
+
+  /* Character */
+  .char-wrap {
+    position:relative;
+    display:inline-block;
+    margin-bottom:1rem;
+  }
+  .char-bg {
+    font-family:'Noto Serif SC',serif;
+    font-size:100px;
+    font-weight:700;
+    line-height:1;
+    color:var(--ink);
+    opacity:0.06;
+    position:absolute;
+    top:50%;left:50%;
+    transform:translate(-50%,-54%);
+    pointer-events:none;
+    user-select:none;
+  }
+  .char-main {
+    font-family:'Noto Serif SC',serif;
+    font-size:72px;
+    font-weight:700;
+    line-height:1;
+    color:var(--ink);
+    position:relative;
+    z-index:1;
+    animation:popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+
+  @keyframes popIn {
+    from{opacity:0;transform:scale(0.7)}
+    to{opacity:1;transform:scale(1)}
+  }
+
+  .pinyin {
+    font-size:22px;
+    font-weight:400;
+    color:var(--orange);
+    letter-spacing:0.08em;
+    margin-bottom:6px;
+    animation:fadeUp 0.4s 0.15s ease both;
+  }
+  .meaning {
+    font-size:15px;
+    color:var(--ink-mid);
+    font-weight:400;
+    margin-bottom:1.25rem;
+    animation:fadeUp 0.4s 0.2s ease both;
+  }
+
+  @keyframes fadeUp {
+    from{opacity:0;transform:translateY(8px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+
+  /* Tags */
+  .tags {
+    display:flex;
+    justify-content:center;
+    gap:7px;
+    margin-bottom:1.25rem;
+    animation:fadeUp 0.4s 0.25s ease both;
+  }
+  .tag {
+    font-size:11px;font-weight:500;
+    border-radius:20px;padding:3px 10px;
+  }
+  .tag-hsk{background:var(--orange-light);color:var(--orange-dark)}
+  .tag-type{background:var(--green-light);color:var(--green-dark)}
+
+  /* Example sentence */
+  .example-box {
+    background:var(--surface);
+    border-radius:12px;
+    padding:12px 14px;
+    text-align:left;
+    margin-bottom:1.25rem;
+    animation:fadeUp 0.4s 0.3s ease both;
+  }
+  .example-label {
+    font-size:10px;font-weight:600;letter-spacing:0.08em;
+    text-transform:uppercase;color:var(--ink-light);
+    margin-bottom:6px;
+  }
+  .example-zh {
+    font-family:'Noto Serif SC',serif;
+    font-size:16px;color:var(--ink);
+    line-height:1.5;margin-bottom:3px;
+  }
+  .example-pinyin {
+    font-size:12px;color:var(--orange);
+    letter-spacing:0.04em;margin-bottom:3px;
+  }
+  .example-en {
+    font-size:12px;color:var(--ink-mid);
+    font-style:italic;
+  }
+
+  /* Stroke count & progress */
+  .meta-row {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    margin-bottom:1.25rem;
+    animation:fadeUp 0.4s 0.35s ease both;
+  }
+  .meta-item {
+    display:flex;align-items:center;gap:5px;
+    font-size:12px;color:var(--ink-light);
+  }
+  .meta-dot {
+    width:6px;height:6px;border-radius:50%;
+    background:var(--border);
+  }
+
+  /* Progress ring — days into year */
+  .progress-wrap {
+    display:flex;align-items:center;justify-content:center;
+    gap:10px;
+    padding:10px 0 4px;
+    border-top:1px solid var(--border);
+    animation:fadeUp 0.4s 0.4s ease both;
+  }
+  .progress-track {
+    flex:1;height:4px;
+    background:var(--orange-light);
+    border-radius:10px;overflow:hidden;
+    max-width:160px;
+  }
+  .progress-fill {
+    height:100%;
+    background:var(--orange);
+    border-radius:10px;
+    transition:width 1s ease;
+  }
+  .progress-label {
+    font-size:11px;color:var(--ink-light);white-space:nowrap;
+  }
+
+  /* Footer */
+  .footer {
+    padding:0.75rem 1.25rem;
+    border-top:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .share-btn {
+    background:none;border:1.5px solid var(--border);
+    border-radius:8px;padding:6px 12px;
+    font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;
+    color:var(--ink-mid);cursor:pointer;
+    transition:all 0.12s;
+  }
+  .share-btn:hover{border-color:var(--orange);color:var(--orange)}
+  .next-word {
+    font-size:11px;color:var(--ink-light);
+  }
+</style>
+</head>
+<body>
+
+<div class="widget">
+  <div class="header">
+    <div class="wotd-header-label">✦ Word of the Day</div>
+    <div class="date-badge" id="dateBadge"></div>
+  </div>
+
+  <div class="body">
+    <div class="char-wrap">
+      <div class="char-bg" id="charBg"></div>
+      <div class="char-main" id="charMain"></div>
+    </div>
+
+    <div class="pinyin" id="pinyin"></div>
+    <div class="meaning" id="meaning"></div>
+
+    <div class="tags">
+      <div class="tag tag-hsk" id="tagHsk"></div>
+      <div class="tag tag-type" id="tagType"></div>
+    </div>
+
+    <div class="example-box">
+      <div class="example-label">Example sentence</div>
+      <div class="example-zh" id="exZh"></div>
+      <div class="example-pinyin" id="exPy"></div>
+      <div class="example-en" id="exEn"></div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-label" id="progressLabel"></div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-label">Word 365</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <button class="share-btn" onclick="share()">Share ↗</button>
+    <div class="next-word" id="nextWord"></div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+//  WORD BANK — 365 words, one per day of the year
+//  Each: char, pinyin, meaning, hsk, type, example sentence
+// ─────────────────────────────────────────────────────────────
+const WORDS = [
+  // HSK 1
+  {c:"你",py:"nǐ",m:"you",hsk:1,t:"Pronoun",ez:"你好！",ep:"Nǐ hǎo!",ee:"Hello!"},
+  {c:"我",py:"wǒ",m:"I, me",hsk:1,t:"Pronoun",ez:"我是学生。",ep:"Wǒ shì xuéshēng.",ee:"I am a student."},
+  {c:"他",py:"tā",m:"he, him",hsk:1,t:"Pronoun",ez:"他很高。",ep:"Tā hěn gāo.",ee:"He is very tall."},
+  {c:"好",py:"hǎo",m:"good, well",hsk:1,t:"Adjective",ez:"你好吗？",ep:"Nǐ hǎo ma?",ee:"How are you?"},
+  {c:"大",py:"dà",m:"big, large",hsk:1,t:"Adjective",ez:"这个苹果很大。",ep:"Zhège píngguǒ hěn dà.",ee:"This apple is very big."},
+  {c:"小",py:"xiǎo",m:"small, little",hsk:1,t:"Adjective",ez:"我有一只小猫。",ep:"Wǒ yǒu yī zhī xiǎo māo.",ee:"I have a little cat."},
+  {c:"水",py:"shuǐ",m:"water",hsk:1,t:"Noun",ez:"我想喝水。",ep:"Wǒ xiǎng hē shuǐ.",ee:"I want to drink water."},
+  {c:"吃",py:"chī",m:"to eat",hsk:1,t:"Verb",ez:"你吃饭了吗？",ep:"Nǐ chī fàn le ma?",ee:"Have you eaten?"},
+  {c:"来",py:"lái",m:"to come",hsk:1,t:"Verb",ez:"他来了。",ep:"Tā lái le.",ee:"He has come."},
+  {c:"去",py:"qù",m:"to go",hsk:1,t:"Verb",ez:"我去学校。",ep:"Wǒ qù xuéxiào.",ee:"I go to school."},
+  {c:"看",py:"kàn",m:"to look, watch",hsk:1,t:"Verb",ez:"我看书。",ep:"Wǒ kàn shū.",ee:"I read a book."},
+  {c:"说",py:"shuō",m:"to speak, say",hsk:1,t:"Verb",ez:"他说中文。",ep:"Tā shuō Zhōngwén.",ee:"He speaks Chinese."},
+  {c:"爸",py:"bà",m:"dad, father",hsk:1,t:"Noun",ez:"我爸爸是老师。",ep:"Wǒ bàba shì lǎoshī.",ee:"My dad is a teacher."},
+  {c:"妈",py:"mā",m:"mum, mother",hsk:1,t:"Noun",ez:"妈妈做饭。",ep:"Māma zuò fàn.",ee:"Mum cooks."},
+  {c:"书",py:"shū",m:"book",hsk:1,t:"Noun",ez:"这本书很好看。",ep:"Zhè běn shū hěn hǎokàn.",ee:"This book is very good."},
+  {c:"猫",py:"māo",m:"cat",hsk:1,t:"Noun",ez:"那只猫是白色的。",ep:"Nà zhī māo shì báisè de.",ee:"That cat is white."},
+  {c:"狗",py:"gǒu",m:"dog",hsk:1,t:"Noun",ez:"他有一只狗。",ep:"Tā yǒu yī zhī gǒu.",ee:"He has a dog."},
+  {c:"月",py:"yuè",m:"moon, month",hsk:1,t:"Noun",ez:"今天几月几号？",ep:"Jīntiān jǐ yuè jǐ hào?",ee:"What is today's date?"},
+  {c:"年",py:"nián",m:"year",hsk:1,t:"Noun",ez:"今年是什么年？",ep:"Jīnnián shì shénme nián?",ee:"What year is it this year?"},
+  {c:"天",py:"tiān",m:"sky, day",hsk:1,t:"Noun",ez:"今天天气很好。",ep:"Jīntiān tiānqì hěn hǎo.",ee:"The weather is very nice today."},
+  // HSK 2
+  {c:"身",py:"shēn",m:"body, oneself",hsk:2,t:"Noun",ez:"他身体很好。",ep:"Tā shēntǐ hěn hǎo.",ee:"He is very healthy."},
+  {c:"颜",py:"yán",m:"colour, face",hsk:2,t:"Noun",ez:"你喜欢什么颜色？",ep:"Nǐ xǐhuān shénme yánsè?",ee:"What colour do you like?"},
+  {c:"运",py:"yùn",m:"to move, luck",hsk:2,t:"Verb",ez:"他喜欢运动。",ep:"Tā xǐhuān yùndòng.",ee:"He likes sport."},
+  {c:"快",py:"kuài",m:"fast, quick",hsk:2,t:"Adjective",ez:"你走得很快。",ep:"Nǐ zǒu de hěn kuài.",ee:"You walk very fast."},
+  {c:"慢",py:"màn",m:"slow",hsk:2,t:"Adjective",ez:"请慢点儿说。",ep:"Qǐng màn diǎnr shuō.",ee:"Please speak a little slower."},
+  {c:"声",py:"shēng",m:"sound, voice",hsk:2,t:"Noun",ez:"外面的声音很大。",ep:"Wàimiàn de shēngyīn hěn dà.",ee:"The noise outside is very loud."},
+  {c:"希",py:"xī",m:"to hope, rare",hsk:2,t:"Verb",ez:"我希望你成功。",ep:"Wǒ xīwàng nǐ chénggōng.",ee:"I hope you succeed."},
+  {c:"眼",py:"yǎn",m:"eye",hsk:2,t:"Noun",ez:"她的眼睛很漂亮。",ep:"Tā de yǎnjīng hěn piàoliang.",ee:"Her eyes are very beautiful."},
+  {c:"已",py:"yǐ",m:"already, to stop",hsk:2,t:"Adverb",ez:"他已经到了。",ep:"Tā yǐjīng dào le.",ee:"He has already arrived."},
+  {c:"觉",py:"jué",m:"to feel, to wake",hsk:2,t:"Verb",ez:"我觉得很好。",ep:"Wǒ juédé hěn hǎo.",ee:"I feel very good."},
+  {c:"告",py:"gào",m:"to tell, inform",hsk:2,t:"Verb",ez:"请告诉我。",ep:"Qǐng gàosu wǒ.",ee:"Please tell me."},
+  {c:"比",py:"bǐ",m:"to compare, than",hsk:2,t:"Preposition",ez:"他比我高。",ep:"Tā bǐ wǒ gāo.",ee:"He is taller than me."},
+  {c:"结",py:"jié",m:"to end, to tie",hsk:2,t:"Verb",ez:"课结束了。",ep:"Kè jiéshù le.",ee:"The class is over."},
+  {c:"旁",py:"páng",m:"beside, side",hsk:2,t:"Noun",ez:"银行在学校旁边。",ep:"Yínháng zài xuéxiào pángbiān.",ee:"The bank is next to the school."},
+  {c:"周",py:"zhōu",m:"week, cycle",hsk:2,t:"Noun",ez:"这个周末你有空吗？",ep:"Zhège zhōumò nǐ yǒu kòng ma?",ee:"Are you free this weekend?"},
+  {c:"新",py:"xīn",m:"new",hsk:2,t:"Adjective",ez:"我买了一件新衣服。",ep:"Wǒ mǎi le yī jiàn xīn yīfú.",ee:"I bought a new piece of clothing."},
+  {c:"药",py:"yào",m:"medicine, drug",hsk:2,t:"Noun",ez:"医生给了我药。",ep:"Yīshēng gěi le wǒ yào.",ee:"The doctor gave me medicine."},
+  {c:"地",py:"dì",m:"earth, place",hsk:2,t:"Noun",ez:"这个地方很美。",ep:"Zhège dìfang hěn měi.",ee:"This place is very beautiful."},
+  {c:"时",py:"shí",m:"time, hour",hsk:2,t:"Noun",ez:"你有时间吗？",ep:"Nǐ yǒu shíjiān ma?",ee:"Do you have time?"},
+  {c:"问",py:"wèn",m:"to ask",hsk:2,t:"Verb",ez:"我问了他一个问题。",ep:"Wǒ wèn le tā yī gè wèntí.",ee:"I asked him a question."},
+  // HSK 3
+  {c:"环",py:"huán",m:"ring, environment",hsk:3,t:"Noun",ez:"我们要保护环境。",ep:"Wǒmen yào bǎohù huánjìng.",ee:"We must protect the environment."},
+  {c:"简",py:"jiǎn",m:"simple, brief",hsk:3,t:"Adjective",ez:"这道题很简单。",ep:"Zhè dào tí hěn jiǎndān.",ee:"This question is very simple."},
+  {c:"认",py:"rèn",m:"to recognise, admit",hsk:3,t:"Verb",ez:"他认真学习。",ep:"Tā rènzhēn xuéxí.",ee:"He studies seriously."},
+  {c:"发",py:"fā",m:"to send, discover",hsk:3,t:"Verb",ez:"我发现了一个问题。",ep:"Wǒ fāxiàn le yī gè wèntí.",ee:"I discovered a problem."},
+  {c:"安",py:"ān",m:"peaceful, safe",hsk:3,t:"Adjective",ez:"图书馆里很安静。",ep:"Túshūguǎn lǐ hěn ānjìng.",ee:"The library is very quiet."},
+  {c:"经",py:"jīng",m:"to pass, classics",hsk:3,t:"Verb",ez:"他很有经验。",ep:"Tā hěn yǒu jīngyàn.",ee:"He has a lot of experience."},
+  {c:"满",py:"mǎn",m:"full, satisfied",hsk:3,t:"Adjective",ez:"他对结果很满意。",ep:"Tā duì jiéguǒ hěn mǎnyì.",ee:"He is satisfied with the result."},
+  {c:"变",py:"biàn",m:"to change",hsk:3,t:"Verb",ez:"天气变了。",ep:"Tiānqì biàn le.",ee:"The weather has changed."},
+  {c:"努",py:"nǔ",m:"to exert, strive",hsk:3,t:"Verb",ez:"你要努力学习。",ep:"Nǐ yào nǔlì xuéxí.",ee:"You must study hard."},
+  {c:"检",py:"jiǎn",m:"to check, inspect",hsk:3,t:"Verb",ez:"老师检查作业。",ep:"Lǎoshī jiǎnchá zuòyè.",ee:"The teacher checks the homework."},
+  {c:"解",py:"jiě",m:"to untie, solve",hsk:3,t:"Verb",ez:"我们需要解决这个问题。",ep:"Wǒmen xūyào jiějué zhège wèntí.",ee:"We need to solve this problem."},
+  {c:"选",py:"xuǎn",m:"to choose, select",hsk:3,t:"Verb",ez:"请选择一个答案。",ep:"Qǐng xuǎnzé yī gè dá'àn.",ee:"Please choose one answer."},
+  {c:"城",py:"chéng",m:"city, town",hsk:3,t:"Noun",ez:"北京是一座大城市。",ep:"Běijīng shì yī zuò dà chéngshì.",ee:"Beijing is a big city."},
+  {c:"空",py:"kōng",m:"empty, sky",hsk:3,t:"Adjective",ez:"今天空气很好。",ep:"Jīntiān kōngqì hěn hǎo.",ee:"The air is very good today."},
+  {c:"温",py:"wēn",m:"warm, temperature",hsk:3,t:"Adjective",ez:"今天气温很高。",ep:"Jīntiān qìwēn hěn gāo.",ee:"The temperature is very high today."},
+  {c:"保",py:"bǎo",m:"to protect, keep",hsk:3,t:"Verb",ez:"我们要保护地球。",ep:"Wǒmen yào bǎohù dìqiú.",ee:"We must protect the Earth."},
+  {c:"危",py:"wēi",m:"dangerous, peril",hsk:3,t:"Adjective",ez:"那里很危险。",ep:"Nàlǐ hěn wēixiǎn.",ee:"That place is very dangerous."},
+  {c:"健",py:"jiàn",m:"healthy, strong",hsk:3,t:"Adjective",ez:"你要注意身体健康。",ep:"Nǐ yào zhùyì shēntǐ jiànkāng.",ee:"You must take care of your health."},
+  {c:"突",py:"tū",m:"sudden, to rush",hsk:3,t:"Adverb",ez:"他突然离开了。",ep:"Tā tūrán líkāi le.",ee:"He left suddenly."},
+  {c:"担",py:"dān",m:"to carry, worry",hsk:3,t:"Verb",ez:"不要担心。",ep:"Búyào dānxīn.",ee:"Don't worry."},
+  // HSK 4
+  {c:"态",py:"tài",m:"attitude, state",hsk:4,t:"Noun",ez:"他的态度很好。",ep:"Tā de tàidù hěn hǎo.",ee:"His attitude is very good."},
+  {c:"复",py:"fù",m:"complex, to repeat",hsk:4,t:"Adjective",ez:"这个问题很复杂。",ep:"Zhège wèntí hěn fùzá.",ee:"This problem is very complicated."},
+  {c:"坚",py:"jiān",m:"firm, hard",hsk:4,t:"Adjective",ez:"他坚持每天跑步。",ep:"Tā jiānchí měitiān pǎobù.",ee:"He persists in running every day."},
+  {c:"麻",py:"má",m:"numb, troublesome",hsk:4,t:"Adjective",ez:"这件事很麻烦。",ep:"Zhè jiàn shì hěn máfan.",ee:"This matter is very troublesome."},
+  {c:"严",py:"yán",m:"strict, severe",hsk:4,t:"Adjective",ez:"老师对我们很严格。",ep:"Lǎoshī duì wǒmen hěn yángé.",ee:"The teacher is very strict with us."},
+  {c:"积",py:"jī",m:"positive, to accumulate",hsk:4,t:"Adjective",ez:"要积极参与活动。",ep:"Yào jījí cānyù huódòng.",ee:"You should actively participate in activities."},
+  {c:"勇",py:"yǒng",m:"brave, courageous",hsk:4,t:"Adjective",ez:"他非常勇敢。",ep:"Tā fēicháng yǒnggǎn.",ee:"He is very brave."},
+  {c:"谦",py:"qiān",m:"modest, humble",hsk:4,t:"Adjective",ez:"成功的人往往很谦虚。",ep:"Chénggōng de rén wǎngwǎng hěn qiānxū.",ee:"Successful people are often very humble."},
+  {c:"诚",py:"chéng",m:"sincere, honest",hsk:4,t:"Adjective",ez:"做人要诚实。",ep:"Zuòrén yào chéngshí.",ee:"One must be honest."},
+  {c:"幽",py:"yōu",m:"quiet, humorous",hsk:4,t:"Adjective",ez:"他很有幽默感。",ep:"Tā hěn yǒu yōumògǎn.",ee:"He has a great sense of humour."},
+  {c:"耐",py:"nài",m:"patient, endure",hsk:4,t:"Adjective",ez:"学语言需要耐心。",ep:"Xué yǔyán xūyào nàixīn.",ee:"Learning a language requires patience."},
+  {c:"建",py:"jiàn",m:"to suggest, build",hsk:4,t:"Verb",ez:"我有一个建议。",ep:"Wǒ yǒu yī gè jiànyì.",ee:"I have a suggestion."},
+  {c:"支",py:"zhī",m:"to support, branch",hsk:4,t:"Verb",ez:"我支持你的决定。",ep:"Wǒ zhīchí nǐ de juédìng.",ee:"I support your decision."},
+  {c:"合",py:"hé",m:"to combine, fit",hsk:4,t:"Verb",ez:"我们要合作完成这个项目。",ep:"Wǒmen yào hézuò wánchéng zhège xiàngmù.",ee:"We must cooperate to complete this project."},
+  {c:"失",py:"shī",m:"to lose, fail",hsk:4,t:"Verb",ez:"不怕失败。",ep:"Bù pà shībài.",ee:"Don't be afraid of failure."},
+  {c:"成",py:"chéng",m:"to succeed, become",hsk:4,t:"Verb",ez:"他终于成功了。",ep:"Tā zhōngyú chénggōng le.",ee:"He finally succeeded."},
+  {c:"机",py:"jī",m:"opportunity, machine",hsk:4,t:"Noun",ez:"这是一个好机会。",ep:"Zhè shì yī gè hǎo jīhuì.",ee:"This is a good opportunity."},
+  {c:"效",py:"xiào",m:"effect, result",hsk:4,t:"Noun",ez:"这个方法很有效果。",ep:"Zhège fāngfǎ hěn yǒu xiàoguǒ.",ee:"This method is very effective."},
+  {c:"证",py:"zhèng",m:"to prove, evidence",hsk:4,t:"Verb",ez:"他证明了这个理论。",ep:"Tā zhèngmíng le zhège lǐlùn.",ee:"He proved this theory."},
+  {c:"幸",py:"xìng",m:"lucky, happiness",hsk:4,t:"Adjective",ez:"我很幸福。",ep:"Wǒ hěn xìngfú.",ee:"I am very happy."},
+  // HSK 5
+  {c:"逐",py:"zhú",m:"gradually, to chase",hsk:5,t:"Adverb",ez:"他的汉语逐渐进步了。",ep:"Tā de Hànyǔ zhújiàn jìnbù le.",ee:"His Chinese has gradually improved."},
+  {c:"矛",py:"máo",m:"spear, contradiction",hsk:5,t:"Noun",ez:"这里有个矛盾。",ep:"Zhèlǐ yǒu gè máodùn.",ee:"There is a contradiction here."},
+  {c:"趋",py:"qū",m:"to tend towards",hsk:5,t:"Verb",ez:"这是一个新趋势。",ep:"Zhè shì yī gè xīn qūshì.",ee:"This is a new trend."},
+  {c:"宽",py:"kuān",m:"wide, tolerant",hsk:5,t:"Adjective",ez:"我们要宽容他人。",ep:"Wǒmen yào kuānróng tārén.",ee:"We should be tolerant of others."},
+  {c:"繁",py:"fán",m:"prosperous, complex",hsk:5,t:"Adjective",ez:"城市经济繁荣。",ep:"Chéngshì jīngjì fánróng.",ee:"The city's economy is prosperous."},
+  {c:"彻",py:"chè",m:"thorough, complete",hsk:5,t:"Adjective",ez:"我们要彻底解决问题。",ep:"Wǒmen yào chèdǐ jiějué wèntí.",ee:"We must thoroughly solve the problem."},
+  {c:"深",py:"shēn",m:"deep, profound",hsk:5,t:"Adjective",ez:"这篇文章很深刻。",ep:"Zhè piān wénzhāng hěn shēnkè.",ee:"This article is very profound."},
+  {c:"广",py:"guǎng",m:"wide, extensive",hsk:5,t:"Adjective",ez:"他的知识很广泛。",ep:"Tā de zhīshi hěn guǎngfàn.",ee:"His knowledge is very extensive."},
+  {c:"普",py:"pǔ",m:"common, universal",hsk:5,t:"Adjective",ez:"这个问题很普遍。",ep:"Zhège wèntí hěn pǔbiàn.",ee:"This problem is very common."},
+  {c:"独",py:"dú",m:"alone, unique",hsk:5,t:"Adjective",ez:"他有独特的风格。",ep:"Tā yǒu dútè de fēnggé.",ee:"He has a unique style."},
+  {c:"创",py:"chuàng",m:"to create, innovate",hsk:5,t:"Verb",ez:"我们需要创新。",ep:"Wǒmen xūyào chuàngxīn.",ee:"We need innovation."},
+  {c:"克",py:"kè",m:"to overcome, gram",hsk:5,t:"Verb",ez:"他克服了困难。",ep:"Tā kèfú le kùnnán.",ee:"He overcame the difficulties."},
+  {c:"协",py:"xié",m:"to coordinate, help",hsk:5,t:"Verb",ez:"大家需要协调合作。",ep:"Dàjiā xūyào xiétiáo hézuò.",ee:"Everyone needs to coordinate and cooperate."},
+  {c:"稳",py:"wěn",m:"stable, steady",hsk:5,t:"Adjective",ez:"经济发展很稳定。",ep:"Jīngjì fāzhǎn hěn wěndìng.",ee:"Economic development is very stable."},
+  {c:"激",py:"jī",m:"to inspire, fierce",hsk:5,t:"Verb",ez:"老师激励我们努力。",ep:"Lǎoshī jīlì wǒmen nǔlì.",ee:"The teacher motivates us to work hard."},
+  {c:"坚",py:"jiān",m:"resilient, firm",hsk:5,t:"Adjective",ez:"他非常坚韧。",ep:"Tā fēicháng jiānrèn.",ee:"He is very resilient."},
+  {c:"敏",py:"mǐn",m:"sensitive, agile",hsk:5,t:"Adjective",ez:"她很敏感。",ep:"Tā hěn mǐngǎn.",ee:"She is very sensitive."},
+  {c:"核",py:"hé",m:"core, nucleus",hsk:5,t:"Noun",ez:"这是核心问题。",ep:"Zhè shì héxīn wèntí.",ee:"This is the core issue."},
+  {c:"概",py:"gài",m:"concept, roughly",hsk:5,t:"Noun",ez:"你懂这个概念吗？",ep:"Nǐ dǒng zhège gàiniàn ma?",ee:"Do you understand this concept?"},
+  {c:"意",py:"yì",m:"meaning, intention",hsk:5,t:"Noun",ez:"这句话是什么意思？",ep:"Zhè jù huà shì shénme yìsi?",ee:"What does this sentence mean?"},
+  // HSK 6
+  {c:"渊",py:"yuān",m:"deep pool, profound",hsk:6,t:"Adjective",ez:"他学识渊博。",ep:"Tā xuéshí yuānbó.",ee:"His knowledge is profound and extensive."},
+  {c:"晦",py:"huì",m:"dark, obscure",hsk:6,t:"Adjective",ez:"这篇文章晦涩难懂。",ep:"Zhè piān wénzhāng huìsè nán dǒng.",ee:"This article is obscure and hard to understand."},
+  {c:"凛",py:"lǐn",m:"cold, awe-inspiring",hsk:6,t:"Adjective",ez:"他神情凛然。",ep:"Tā shénqíng lǐnrán.",ee:"His expression was awe-inspiring."},
+  {c:"踌",py:"chóu",m:"to hesitate, waver",hsk:6,t:"Verb",ez:"他踌躇了很久。",ep:"Tā chóuchú le hěn jiǔ.",ee:"He hesitated for a long time."},
+  {c:"弥",py:"mí",m:"to pervade, fill",hsk:6,t:"Verb",ez:"香气弥漫在空气中。",ep:"Xiāngqì mímàn zài kōngqì zhōng.",ee:"Fragrance pervades the air."},
+  {c:"豁",py:"huò",m:"open, magnanimous",hsk:6,t:"Adjective",ez:"他心胸豁达。",ep:"Tā xīnxiōng huòdá.",ee:"He is open-minded and magnanimous."},
+  {c:"叱",py:"chì",m:"to scold, command",hsk:6,t:"Verb",ez:"他叱咤风云。",ep:"Tā chìzhà fēngyún.",ee:"He commands the wind and clouds — dominating."},
+  {c:"沧",py:"cāng",m:"dark blue, vast",hsk:6,t:"Adjective",ez:"沧桑是人生的一部分。",ep:"Cāngsāng shì rénshēng de yī bùfèn.",ee:"Vicissitudes are part of life."},
+  {c:"褒",py:"bāo",m:"to praise, commend",hsk:6,t:"Verb",ez:"我们要学会褒贬分明。",ep:"Wǒmen yào xuéhuì bāobiǎn fēnmíng.",ee:"We should learn to clearly distinguish praise from criticism."},
+  {c:"恣",py:"zì",m:"unrestrained, wanton",hsk:6,t:"Adjective",ez:"他恣意挥洒才华。",ep:"Tā zìyì huīsǎ cáihuá.",ee:"He displayed his talent without restraint."},
+  // HSK 7-9
+  {c:"韬",py:"tāo",m:"to hide, bow case",hsk:9,t:"Verb",ez:"韬光养晦是一种智慧。",ep:"Tāo guāng yǎng huì shì yī zhǒng zhìhuì.",ee:"Hiding one's strength and biding one's time is a form of wisdom."},
+  {c:"厚",py:"hòu",m:"thick, generous",hsk:9,t:"Adjective",ez:"厚积薄发是成功的秘诀。",ep:"Hòu jī bó fā shì chénggōng de mìjué.",ee:"Accumulating quietly and releasing at the right time is the secret of success."},
+  {c:"砥",py:"dǐ",m:"whetstone, to sharpen",hsk:9,t:"Verb",ez:"我们要砥砺前行。",ep:"Wǒmen yào dǐlì qián xíng.",ee:"We must forge ahead with determination."},
+  {c:"慎",py:"shèn",m:"cautious, careful",hsk:9,t:"Adjective",ez:"慎独是君子的美德。",ep:"Shèn dú shì jūnzǐ de měidé.",ee:"Being virtuous when alone is the virtue of a gentleman."},
+  {c:"臆",py:"yì",m:"chest, subjective",hsk:9,t:"Adjective",ez:"不要臆断。",ep:"Búyào yìduàn.",ee:"Don't jump to subjective conclusions."},
+  {c:"蹉",py:"cuō",m:"to slip, waste time",hsk:9,t:"Verb",ez:"不要蹉跎岁月。",ep:"Búyào cuōtuó suìyuè.",ee:"Don't let time slip away in vain."},
+  {c:"炉",py:"lú",m:"stove, furnace",hsk:9,t:"Noun",ez:"他的技艺已炉火纯青。",ep:"Tā de jìyì yǐ lú huǒ chún qīng.",ee:"His skill has reached a state of mastery."},
+  {c:"游",py:"yóu",m:"to swim, travel",hsk:9,t:"Verb",ez:"他做事游刃有余。",ep:"Tā zuò shì yóu rèn yǒu yú.",ee:"He handles things with great ease."},
+  {c:"渊",py:"yuān",m:"abyss, profound",hsk:9,t:"Noun",ez:"知识渊博的人受人尊敬。",ep:"Zhīshí yuānbó de rén shòu rén zūnjìng.",ee:"A person of profound knowledge earns respect."},
+  {c:"砺",py:"lì",m:"whetstone, to temper",hsk:9,t:"Verb",ez:"艰难能够砺炼人的意志。",ep:"Jiānnán nénggòu lìliàn rén de yìzhì.",ee:"Hardship can temper a person's will."},
+
+  // ── More HSK 1 ─────────────────────────────────────────────
+  {c:"你好",py:"nǐ hǎo",m:"hello",hsk:1,t:"Phrase",ez:"你好！很高兴认识你。",ep:"Nǐ hǎo! Hěn gāoxìng rènshí nǐ.",ee:"Hello! Nice to meet you."},
+  {c:"再见",py:"zàijiàn",m:"goodbye",hsk:1,t:"Phrase",ez:"明天见，再见！",ep:"Míngtiān jiàn, zàijiàn!",ee:"See you tomorrow, goodbye!"},
+  {c:"谢谢",py:"xièxiè",m:"thank you",hsk:1,t:"Phrase",ez:"谢谢你的帮助。",ep:"Xièxiè nǐ de bāngzhù.",ee:"Thank you for your help."},
+  {c:"不客气",py:"bú kèqì",m:"you're welcome",hsk:1,t:"Phrase",ez:"谢谢！不客气。",ep:"Xièxiè! Bú kèqì.",ee:"Thank you! You're welcome."},
+  {c:"对不起",py:"duìbuqǐ",m:"sorry, excuse me",hsk:1,t:"Phrase",ez:"对不起，我来晚了。",ep:"Duìbuqǐ, wǒ lái wǎn le.",ee:"Sorry, I came late."},
+  {c:"没关系",py:"méi guānxi",m:"it's okay, never mind",hsk:1,t:"Phrase",ez:"没关系，不要担心。",ep:"Méi guānxi, búyào dānxīn.",ee:"It's okay, don't worry."},
+  {c:"多少",py:"duōshǎo",m:"how much, how many",hsk:1,t:"Question",ez:"这个多少钱？",ep:"Zhège duōshǎo qián?",ee:"How much is this?"},
+  {c:"哪里",py:"nǎlǐ",m:"where",hsk:1,t:"Question",ez:"图书馆在哪里？",ep:"Túshūguǎn zài nǎlǐ?",ee:"Where is the library?"},
+  {c:"什么",py:"shénme",m:"what",hsk:1,t:"Question",ez:"这是什么？",ep:"Zhè shì shénme?",ee:"What is this?"},
+  {c:"喜欢",py:"xǐhuān",m:"to like",hsk:1,t:"Verb",ez:"我喜欢学中文。",ep:"Wǒ xǐhuān xué Zhōngwén.",ee:"I like learning Chinese."},
+  {c:"漂亮",py:"piàoliang",m:"beautiful, pretty",hsk:1,t:"Adjective",ez:"她很漂亮。",ep:"Tā hěn piàoliang.",ee:"She is very beautiful."},
+  {c:"高兴",py:"gāoxìng",m:"happy, glad",hsk:1,t:"Adjective",ez:"我很高兴见到你。",ep:"Wǒ hěn gāoxìng jiàndào nǐ.",ee:"I am glad to meet you."},
+  {c:"冷",py:"lěng",m:"cold",hsk:1,t:"Adjective",ez:"冬天很冷。",ep:"Dōngtiān hěn lěng.",ee:"Winter is very cold."},
+  {c:"热",py:"rè",m:"hot",hsk:1,t:"Adjective",ez:"夏天很热。",ep:"Xiàtiān hěn rè.",ee:"Summer is very hot."},
+  {c:"苹果",py:"píngguǒ",m:"apple",hsk:1,t:"Noun",ez:"我每天吃一个苹果。",ep:"Wǒ měitiān chī yī gè píngguǒ.",ee:"I eat one apple every day."},
+  {c:"朋友",py:"péngyǒu",m:"friend",hsk:1,t:"Noun",ez:"他是我的好朋友。",ep:"Tā shì wǒ de hǎo péngyǒu.",ee:"He is my good friend."},
+  {c:"老师",py:"lǎoshī",m:"teacher",hsk:1,t:"Noun",ez:"我的老师很好。",ep:"Wǒ de lǎoshī hěn hǎo.",ee:"My teacher is very good."},
+  {c:"学生",py:"xuéshēng",m:"student",hsk:1,t:"Noun",ez:"我是一名学生。",ep:"Wǒ shì yī míng xuéshēng.",ee:"I am a student."},
+  {c:"中文",py:"Zhōngwén",m:"Chinese language",hsk:1,t:"Noun",ez:"你会说中文吗？",ep:"Nǐ huì shuō Zhōngwén ma?",ee:"Can you speak Chinese?"},
+  {c:"日本",py:"Rìběn",m:"Japan",hsk:1,t:"Noun",ez:"他来自日本。",ep:"Tā láizì Rìběn.",ee:"He comes from Japan."},
+  // ── More HSK 2 ─────────────────────────────────────────────
+  {c:"开始",py:"kāishǐ",m:"to begin, start",hsk:2,t:"Verb",ez:"课开始了。",ep:"Kè kāishǐ le.",ee:"The class has started."},
+  {c:"结束",py:"jiéshù",m:"to end, finish",hsk:2,t:"Verb",ez:"会议结束了。",ep:"Huìyì jiéshù le.",ee:"The meeting has ended."},
+  {c:"知道",py:"zhīdào",m:"to know",hsk:2,t:"Verb",ez:"我不知道。",ep:"Wǒ bù zhīdào.",ee:"I don't know."},
+  {c:"认识",py:"rènshi",m:"to know (a person)",hsk:2,t:"Verb",ez:"很高兴认识你。",ep:"Hěn gāoxìng rènshi nǐ.",ee:"Nice to meet you."},
+  {c:"帮助",py:"bāngzhù",m:"to help",hsk:2,t:"Verb",ez:"谢谢你帮助我。",ep:"Xièxiè nǐ bāngzhù wǒ.",ee:"Thank you for helping me."},
+  {c:"等一下",py:"děng yīxià",m:"wait a moment",hsk:2,t:"Phrase",ez:"等一下，我马上来。",ep:"Děng yīxià, wǒ mǎshàng lái.",ee:"Wait a moment, I'll be right there."},
+  {c:"因为",py:"yīnwèi",m:"because",hsk:2,t:"Conjunction",ez:"因为下雨，我没出门。",ep:"Yīnwèi xià yǔ, wǒ méi chū mén.",ee:"Because it was raining, I did not go out."},
+  {c:"所以",py:"suǒyǐ",m:"therefore, so",hsk:2,t:"Conjunction",ez:"他努力，所以成功了。",ep:"Tā nǔlì, suǒyǐ chénggōng le.",ee:"He worked hard, so he succeeded."},
+  {c:"但是",py:"dànshì",m:"but, however",hsk:2,t:"Conjunction",ez:"我想去，但是没时间。",ep:"Wǒ xiǎng qù, dànshì méi shíjiān.",ee:"I want to go, but I have no time."},
+  {c:"如果",py:"rúguǒ",m:"if",hsk:2,t:"Conjunction",ez:"如果下雨，就不去了。",ep:"Rúguǒ xià yǔ, jiù bù qù le.",ee:"If it rains, we won't go."},
+  {c:"虽然",py:"suīrán",m:"although",hsk:2,t:"Conjunction",ez:"虽然难，但是很有趣。",ep:"Suīrán nán, dànshì hěn yǒuqù.",ee:"Although difficult, it's very interesting."},
+  {c:"一直",py:"yīzhí",m:"always, straight",hsk:2,t:"Adverb",ez:"我一直想学中文。",ep:"Wǒ yīzhí xiǎng xué Zhōngwén.",ee:"I have always wanted to learn Chinese."},
+  {c:"终于",py:"zhōngyú",m:"finally, at last",hsk:2,t:"Adverb",ez:"我终于学会了。",ep:"Wǒ zhōngyú xuéhuì le.",ee:"I finally learned it."},
+  {c:"已经",py:"yǐjīng",m:"already",hsk:2,t:"Adverb",ez:"他已经回家了。",ep:"Tā yǐjīng huíjiā le.",ee:"He has already gone home."},
+  {c:"还是",py:"háishi",m:"or, still",hsk:2,t:"Conjunction",ez:"你喝茶还是咖啡？",ep:"Nǐ hē chá háishi kāfēi?",ee:"Do you drink tea or coffee?"},
+  {c:"可以",py:"kěyǐ",m:"can, may",hsk:2,t:"Modal",ez:"我可以帮你。",ep:"Wǒ kěyǐ bāng nǐ.",ee:"I can help you."},
+  {c:"应该",py:"yīnggāi",m:"should, ought to",hsk:2,t:"Modal",ez:"你应该多休息。",ep:"Nǐ yīnggāi duō xiūxi.",ee:"You should rest more."},
+  {c:"必须",py:"bìxū",m:"must, have to",hsk:2,t:"Modal",ez:"你必须按时完成。",ep:"Nǐ bìxū ànshí wánchéng.",ee:"You must finish on time."},
+  {c:"超市",py:"chāoshì",m:"supermarket",hsk:2,t:"Noun",ez:"我去超市买东西。",ep:"Wǒ qù chāoshì mǎi dōngxi.",ee:"I go to the supermarket to shop."},
+  {c:"公司",py:"gōngsī",m:"company, firm",hsk:2,t:"Noun",ez:"他在一家大公司工作。",ep:"Tā zài yī jiā dà gōngsī gōngzuò.",ee:"He works at a large company."},
+  {c:"工作",py:"gōngzuò",m:"work, job",hsk:2,t:"Noun",ez:"你的工作怎么样？",ep:"Nǐ de gōngzuò zěnmeyàng?",ee:"How is your work?"},
+  {c:"手机",py:"shǒujī",m:"mobile phone",hsk:2,t:"Noun",ez:"我的手机不见了。",ep:"Wǒ de shǒujī bùjiàn le.",ee:"My phone is missing."},
+  {c:"电脑",py:"diànnǎo",m:"computer",hsk:2,t:"Noun",ez:"我用电脑工作。",ep:"Wǒ yòng diànnǎo gōngzuò.",ee:"I work with a computer."},
+  {c:"电话",py:"diànhuà",m:"telephone, call",hsk:2,t:"Noun",ez:"我给你打电话。",ep:"Wǒ gěi nǐ dǎ diànhuà.",ee:"I'll call you."},
+  {c:"意思",py:"yìsi",m:"meaning, idea",hsk:2,t:"Noun",ez:"这个词是什么意思？",ep:"Zhège cí shì shénme yìsi?",ee:"What does this word mean?"},
+  // ── More HSK 3 ─────────────────────────────────────────────
+  {c:"参加",py:"cānjiā",m:"to participate, join",hsk:3,t:"Verb",ez:"我参加了比赛。",ep:"Wǒ cānjiā le bǐsài.",ee:"I participated in the competition."},
+  {c:"照顾",py:"zhàogù",m:"to take care of",hsk:3,t:"Verb",ez:"妈妈照顾我。",ep:"Māma zhàogù wǒ.",ee:"Mum takes care of me."},
+  {c:"决定",py:"juédìng",m:"to decide, decision",hsk:3,t:"Verb",ez:"我决定去北京。",ep:"Wǒ juédìng qù Běijīng.",ee:"I have decided to go to Beijing."},
+  {c:"方法",py:"fāngfǎ",m:"method, way",hsk:3,t:"Noun",ez:"这个方法很有效。",ep:"Zhège fāngfǎ hěn yǒuxiào.",ee:"This method is very effective."},
+  {c:"关系",py:"guānxi",m:"relationship, connection",hsk:3,t:"Noun",ez:"我们关系很好。",ep:"Wǒmen guānxi hěn hǎo.",ee:"We have a very good relationship."},
+  {c:"重要",py:"zhòngyào",m:"important",hsk:3,t:"Adjective",ez:"健康很重要。",ep:"Jiànkāng hěn zhòngyào.",ee:"Health is very important."},
+  {c:"完成",py:"wánchéng",m:"to complete",hsk:3,t:"Verb",ez:"我完成了作业。",ep:"Wǒ wánchéng le zuòyè.",ee:"I completed the homework."},
+  {c:"提高",py:"tígāo",m:"to improve, raise",hsk:3,t:"Verb",ez:"我想提高我的中文。",ep:"Wǒ xiǎng tígāo wǒ de Zhōngwén.",ee:"I want to improve my Chinese."},
+  {c:"感觉",py:"gǎnjué",m:"feeling, to feel",hsk:3,t:"Noun",ez:"我有一种奇怪的感觉。",ep:"Wǒ yǒu yī zhǒng qíguài de gǎnjué.",ee:"I have a strange feeling."},
+  {c:"相信",py:"xiāngxìn",m:"to believe, trust",hsk:3,t:"Verb",ez:"我相信你能成功。",ep:"Wǒ xiāngxìn nǐ néng chénggōng.",ee:"I believe you can succeed."},
+  {c:"继续",py:"jìxù",m:"to continue",hsk:3,t:"Verb",ez:"请继续说。",ep:"Qǐng jìxù shuō.",ee:"Please continue speaking."},
+  {c:"害怕",py:"hàipà",m:"to be afraid, scared",hsk:3,t:"Verb",ez:"我不害怕困难。",ep:"Wǒ bù hàipà kùnnán.",ee:"I am not afraid of difficulties."},
+  {c:"同意",py:"tóngyì",m:"to agree",hsk:3,t:"Verb",ez:"我同意你的看法。",ep:"Wǒ tóngyì nǐ de kànfǎ.",ee:"I agree with your opinion."},
+  {c:"回答",py:"huídá",m:"to answer, reply",hsk:3,t:"Verb",ez:"请回答我的问题。",ep:"Qǐng huídá wǒ de wèntí.",ee:"Please answer my question."},
+  {c:"方向",py:"fāngxiàng",m:"direction",hsk:3,t:"Noun",ez:"你知道去北京的方向吗？",ep:"Nǐ zhīdào qù Běijīng de fāngxiàng ma?",ee:"Do you know the direction to Beijing?"},
+  {c:"地球",py:"dìqiú",m:"the Earth",hsk:3,t:"Noun",ez:"地球只有一个。",ep:"Dìqiú zhǐyǒu yī gè.",ee:"There is only one Earth."},
+  {c:"自然",py:"zìrán",m:"nature, natural",hsk:3,t:"Noun",ez:"我喜欢大自然。",ep:"Wǒ xǐhuān dàzìrán.",ee:"I love nature."},
+  {c:"锻炼",py:"duànliàn",m:"to exercise, train",hsk:3,t:"Verb",ez:"每天锻炼身体很重要。",ep:"Měitiān duànliàn shēntǐ hěn zhòngyào.",ee:"Exercising every day is very important."},
+  {c:"规定",py:"guīdìng",m:"rule, regulation",hsk:3,t:"Noun",ez:"要遵守规定。",ep:"Yào zūnshǒu guīdìng.",ee:"Rules must be followed."},
+  {c:"附近",py:"fùjìn",m:"nearby, vicinity",hsk:3,t:"Noun",ez:"附近有一家餐厅。",ep:"Fùjìn yǒu yī jiā cāntīng.",ee:"There is a restaurant nearby."},
+  {c:"进步",py:"jìnbù",m:"progress, to improve",hsk:3,t:"Noun",ez:"你的进步很大。",ep:"Nǐ de jìnbù hěn dà.",ee:"You have made great progress."},
+  {c:"影响",py:"yǐngxiǎng",m:"to influence, impact",hsk:3,t:"Verb",ez:"天气影响了我们的计划。",ep:"Tiānqì yǐngxiǎng le wǒmen de jìhuà.",ee:"The weather affected our plans."},
+  {c:"特别",py:"tèbié",m:"especially, special",hsk:3,t:"Adverb",ez:"我特别喜欢中国文化。",ep:"Wǒ tèbié xǐhuān Zhōngguó wénhuà.",ee:"I especially like Chinese culture."},
+  {c:"一般",py:"yībān",m:"general, ordinary",hsk:3,t:"Adjective",ez:"这只是一般的问题。",ep:"Zhè zhǐshì yībān de wèntí.",ee:"This is just an ordinary question."},
+  {c:"其实",py:"qíshí",m:"actually, in fact",hsk:3,t:"Adverb",ez:"其实这很容易。",ep:"Qíshí zhè hěn róngyì.",ee:"Actually this is very easy."},
+  // ── More HSK 4 ─────────────────────────────────────────────
+  {c:"批评",py:"pīpíng",m:"to criticise",hsk:4,t:"Verb",ez:"老师批评了他。",ep:"Lǎoshī pīpíng le tā.",ee:"The teacher criticised him."},
+  {c:"推迟",py:"tuīchí",m:"to postpone, delay",hsk:4,t:"Verb",ez:"会议推迟了一个小时。",ep:"Huìyì tuīchí le yī gè xiǎoshí.",ee:"The meeting was postponed by one hour."},
+  {c:"理解",py:"lǐjiě",m:"to understand",hsk:4,t:"Verb",ez:"我理解你的感受。",ep:"Wǒ lǐjiě nǐ de gǎnshòu.",ee:"I understand your feelings."},
+  {c:"信任",py:"xìnrèn",m:"to trust, confidence",hsk:4,t:"Verb",ez:"我们互相信任。",ep:"Wǒmen hùxiāng xìnrèn.",ee:"We trust each other."},
+  {c:"承认",py:"chéngrèn",m:"to admit, acknowledge",hsk:4,t:"Verb",ez:"他承认了自己的错误。",ep:"Tā chéngrèn le zìjǐ de cuòwù.",ee:"He admitted his mistake."},
+  {c:"讨论",py:"tǎolùn",m:"to discuss",hsk:4,t:"Verb",ez:"我们讨论了这个问题。",ep:"Wǒmen tǎolùn le zhège wèntí.",ee:"We discussed this issue."},
+  {c:"交流",py:"jiāoliú",m:"to communicate, exchange",hsk:4,t:"Verb",ez:"多和外国人交流。",ep:"Duō hé wàiguórén jiāoliú.",ee:"Communicate more with foreigners."},
+  {c:"竞争",py:"jìngzhēng",m:"to compete, competition",hsk:4,t:"Verb",ez:"市场竞争很激烈。",ep:"Shìchǎng jìngzhēng hěn jīliè.",ee:"Market competition is very fierce."},
+  {c:"发展",py:"fāzhǎn",m:"to develop, development",hsk:4,t:"Verb",ez:"中国发展很快。",ep:"Zhōngguó fāzhǎn hěn kuài.",ee:"China is developing very fast."},
+  {c:"改变",py:"gǎibiàn",m:"to change",hsk:4,t:"Verb",ez:"他改变了很多。",ep:"Tā gǎibiàn le hěn duō.",ee:"He has changed a lot."},
+  {c:"增加",py:"zēngjiā",m:"to increase",hsk:4,t:"Verb",ez:"收入增加了。",ep:"Shōurù zēngjiā le.",ee:"Income has increased."},
+  {c:"提供",py:"tígōng",m:"to provide",hsk:4,t:"Verb",ez:"公司提供培训。",ep:"Gōngsī tígōng péixùn.",ee:"The company provides training."},
+  {c:"注意",py:"zhùyì",m:"to pay attention",hsk:4,t:"Verb",ez:"请注意安全。",ep:"Qǐng zhùyì ānquán.",ee:"Please pay attention to safety."},
+  {c:"负责",py:"fùzé",m:"responsible, in charge",hsk:4,t:"Adjective",ez:"他很负责任。",ep:"Tā hěn fùzérèn.",ee:"He is very responsible."},
+  {c:"表现",py:"biǎoxiàn",m:"performance, to show",hsk:4,t:"Noun",ez:"你的表现很好。",ep:"Nǐ de biǎoxiàn hěn hǎo.",ee:"Your performance is very good."},
+  {c:"分析",py:"fēnxī",m:"to analyse",hsk:4,t:"Verb",ez:"我们需要分析问题。",ep:"Wǒmen xūyào fēnxī wèntí.",ee:"We need to analyse the problem."},
+  {c:"现实",py:"xiànshí",m:"reality, realistic",hsk:4,t:"Noun",ez:"要面对现实。",ep:"Yào miànduì xiànshí.",ee:"One must face reality."},
+  {c:"理想",py:"lǐxiǎng",m:"ideal, dream",hsk:4,t:"Noun",ez:"每个人都有理想。",ep:"Měi gè rén dōu yǒu lǐxiǎng.",ee:"Everyone has a dream."},
+  {c:"痛苦",py:"tòngkǔ",m:"painful, suffering",hsk:4,t:"Adjective",ez:"失败让他很痛苦。",ep:"Shībài ràng tā hěn tòngkǔ.",ee:"Failure made him suffer greatly."},
+  {c:"压力",py:"yālì",m:"pressure, stress",hsk:4,t:"Noun",ez:"工作压力很大。",ep:"Gōngzuò yālì hěn dà.",ee:"Work pressure is very great."},
+  {c:"挑战",py:"tiǎozhàn",m:"challenge",hsk:4,t:"Noun",ez:"这是一个大挑战。",ep:"Zhè shì yī gè dà tiǎozhàn.",ee:"This is a great challenge."},
+  {c:"困难",py:"kùnnán",m:"difficulty, difficult",hsk:4,t:"Noun",ez:"学语言有很多困难。",ep:"Xué yǔyán yǒu hěn duō kùnnán.",ee:"Learning a language has many difficulties."},
+  {c:"文化",py:"wénhuà",m:"culture",hsk:4,t:"Noun",ez:"中国文化很丰富。",ep:"Zhōngguó wénhuà hěn fēngfù.",ee:"Chinese culture is very rich."},
+  {c:"历史",py:"lìshǐ",m:"history",hsk:4,t:"Noun",ez:"中国历史很悠久。",ep:"Zhōngguó lìshǐ hěn yōujiǔ.",ee:"China has a very long history."},
+  {c:"社会",py:"shèhuì",m:"society",hsk:4,t:"Noun",ez:"这是一个社会问题。",ep:"Zhè shì yī gè shèhuì wèntí.",ee:"This is a social issue."},
+  // ── More HSK 5 ─────────────────────────────────────────────
+  {c:"逐渐",py:"zhújiàn",m:"gradually, step by step",hsk:5,t:"Adverb",ez:"他的病逐渐好了。",ep:"Tā de bìng zhújiàn hǎo le.",ee:"His illness gradually got better."},
+  {c:"彻底",py:"chèdǐ",m:"thorough, complete",hsk:5,t:"Adverb",ez:"问题被彻底解决了。",ep:"Wèntí bèi chèdǐ jiějué le.",ee:"The problem was thoroughly resolved."},
+  {c:"倡导",py:"chàngdǎo",m:"to advocate, promote",hsk:5,t:"Verb",ez:"他倡导环境保护。",ep:"Tā chàngdǎo huánjìng bǎohù.",ee:"He advocates environmental protection."},
+  {c:"执行",py:"zhíxíng",m:"to implement, execute",hsk:5,t:"Verb",ez:"计划已经开始执行了。",ep:"Jìhuà yǐjīng kāishǐ zhíxíng le.",ee:"The plan has already started to be implemented."},
+  {c:"遏制",py:"èzhì",m:"to curb, restrain",hsk:5,t:"Verb",ez:"政府遏制了通货膨胀。",ep:"Zhèngfǔ èzhì le tōnghuò péngzhàng.",ee:"The government curbed inflation."},
+  {c:"融合",py:"rónghé",m:"to merge, blend",hsk:5,t:"Verb",ez:"文化融合是一种趋势。",ep:"Wénhuà rónghé shì yī zhǒng qūshì.",ee:"Cultural blending is a trend."},
+  {c:"适应",py:"shìyìng",m:"to adapt, adjust",hsk:5,t:"Verb",ez:"他很快适应了新环境。",ep:"Tā hěn kuài shìyìng le xīn huánjìng.",ee:"He quickly adapted to the new environment."},
+  {c:"包容",py:"bāoróng",m:"to be inclusive, tolerant",hsk:5,t:"Verb",ez:"我们要包容不同的文化。",ep:"Wǒmen yào bāoróng bùtóng de wénhuà.",ee:"We should be inclusive of different cultures."},
+  {c:"传播",py:"chuánbō",m:"to spread, disseminate",hsk:5,t:"Verb",ez:"网络传播信息很快。",ep:"Wǎngluò chuánbō xìnxī hěn kuài.",ee:"The internet spreads information very quickly."},
+  {c:"坚韧",py:"jiānrèn",m:"resilient, tenacious",hsk:5,t:"Adjective",ez:"他的性格很坚韧。",ep:"Tā de xìnggé hěn jiānrèn.",ee:"He has a resilient character."},
+  {c:"评估",py:"pínggū",m:"to evaluate and assess",hsk:5,t:"Verb",ez:"老师评估了学生的进步。",ep:"Lǎoshī pínggū le xuéshēng de jìnbù.",ee:"The teacher evaluated the students progress."},
+  {c:"规范",py:"guīfàn",m:"standard, norm",hsk:5,t:"Noun",ez:"要遵守规范。",ep:"Yào zūnshǒu guīfàn.",ee:"Standards must be followed."},
+  {c:"机制",py:"jīzhì",m:"mechanism, system",hsk:5,t:"Noun",ez:"建立一个好的机制很重要。",ep:"Jiànlì yī gè hǎo de jīzhì hěn zhòngyào.",ee:"Establishing a good mechanism is very important."},
+  {c:"本质",py:"běnzhì",m:"essence, nature",hsk:5,t:"Noun",ez:"我们要了解问题的本质。",ep:"Wǒmen yào liǎojiě wèntí de běnzhì.",ee:"We need to understand the essence of the problem."},
+  {c:"现象",py:"xiànxiàng",m:"phenomenon",hsk:5,t:"Noun",ez:"这是一个有趣的现象。",ep:"Zhè shì yī gè yǒuqù de xiànxiàng.",ee:"This is an interesting phenomenon."},
+  {c:"领域",py:"lǐngyù",m:"field, domain",hsk:5,t:"Noun",ez:"科学领域有很多发现。",ep:"Kēxué lǐngyù yǒu hěn duō fāxiàn.",ee:"There are many discoveries in the scientific field."},
+  {c:"价值",py:"jiàzhí",m:"value, worth",hsk:5,t:"Noun",ez:"教育的价值无可估量。",ep:"Jiàoyù de jiàzhí wú kě gūliàng.",ee:"The value of education cannot be measured."},
+  {c:"意义",py:"yìyì",m:"meaning, significance",hsk:5,t:"Noun",ez:"这件事意义重大。",ep:"Zhè jiàn shì yìyì zhòngdà.",ee:"This matter is of great significance."},
+  {c:"竞争力",py:"jìngzhēnglì",m:"competitiveness",hsk:5,t:"Noun",ez:"提高国际竞争力很重要。",ep:"Tígāo guójì jìngzhēnglì hěn zhòngyào.",ee:"Improving international competitiveness is very important."},
+  {c:"创造力",py:"chuàngzàolì",m:"creativity",hsk:5,t:"Noun",ez:"孩子有很强的创造力。",ep:"Háizi yǒu hěn qiáng de chuàngzàolì.",ee:"Children have very strong creativity."},
+  // ── More HSK 6 ─────────────────────────────────────────────
+  {c:"斟酌",py:"zhēnzhuó",m:"to deliberate carefully",hsk:6,t:"Verb",ez:"这个决定需要仔细斟酌。",ep:"Zhège juédìng xūyào zǐxì zhēnzhuó.",ee:"This decision needs to be deliberated carefully."},
+  {c:"瞬息",py:"shùnxī",m:"in an instant",hsk:6,t:"Adverb",ez:"瞬息万变的世界。",ep:"Shùnxī wànbiàn de shìjiè.",ee:"A world of rapid and constant changes."},
+  {c:"迂腐",py:"yūfǔ",m:"pedantic, old-fashioned",hsk:6,t:"Adjective",ez:"他的观点有些迂腐。",ep:"Tā de guāndiǎn yǒuxiē yūfǔ.",ee:"His views are somewhat pedantic."},
+  {c:"博大",py:"bódà",m:"broad and great",hsk:6,t:"Adjective",ez:"中国文化博大精深。",ep:"Zhōngguó wénhuà bódà jīngshēn.",ee:"Chinese culture is broad and profound."},
+  {c:"绵延",py:"miányán",m:"continuous, unbroken",hsk:6,t:"Adjective",ez:"长城绵延万里。",ep:"Chángchéng miányán wànlǐ.",ee:"The Great Wall stretches for ten thousand li."},
+  {c:"振奋",py:"zhènfèn",m:"to inspire, exciting",hsk:6,t:"Verb",ez:"这个消息让人振奋。",ep:"Zhège xiāoxi ràng rén zhènfèn.",ee:"This news is very inspiring."},
+  {c:"引人",py:"yǐn rén",m:"fascinating, appealing",hsk:6,t:"Adjective",ez:"这个故事非常引人入胜。",ep:"Zhège gùshì fēicháng yǐn rén rù shèng.",ee:"This story is absolutely captivating."},
+  {c:"耐人",py:"nài rén",m:"thought-provoking",hsk:6,t:"Adjective",ez:"这句话耐人寻味。",ep:"Zhè jù huà nài rén xúnwèi.",ee:"This saying is very thought-provoking."},
+  {c:"精益",py:"jīng yì",m:"to strive for excellence",hsk:6,t:"Idiom",ez:"工匠精益求精。",ep:"Gōngjiàng jīng yì qiú jīng.",ee:"Craftsmen strive for ever-greater excellence."},
+  {c:"鞠躬",py:"jūgōng",m:"to bow, devote oneself",hsk:6,t:"Verb",ez:"他鞠躬尽瘁地工作。",ep:"Tā jū gōng jìn cuì de gōngzuò.",ee:"He devoted himself entirely to his work."},
+  // ── Chengyu & expressions ───────────────────────────────────
+  {c:"马到成功",py:"mǎ dào chéng gōng",m:"immediate success",hsk:4,t:"Chengyu",ez:"祝你马到成功！",ep:"Zhù nǐ mǎ dào chéng gōng!",ee:"I wish you immediate success!"},
+  {c:"一步一个脚印",py:"yī bù yī gè jiǎoyìn",m:"one step at a time",hsk:4,t:"Expression",ez:"学习要一步一个脚印。",ep:"Xuéxí yào yī bù yī gè jiǎoyìn.",ee:"Study must be done one step at a time."},
+  {c:"功夫不负有心人",py:"gōngfu bù fù yǒuxīnrén",m:"hard work pays off",hsk:4,t:"Proverb",ez:"功夫不负有心人，继续努力！",ep:"Gōngfu bù fù yǒuxīnrén, jìxù nǔlì!",ee:"Hard work pays off — keep going!"},
+  {c:"学无止境",py:"xué wú zhǐjìng",m:"learning is endless",hsk:5,t:"Chengyu",ez:"学无止境，要一直努力。",ep:"Xué wú zhǐjìng, yào yīzhí nǔlì.",ee:"Learning is endless — one must always strive."},
+  {c:"知难而进",py:"zhī nán ér jìn",m:"advance despite knowing difficulty",hsk:5,t:"Chengyu",ez:"我们要知难而进。",ep:"Wǒmen yào zhī nán ér jìn.",ee:"We must advance despite the difficulties."},
+  {c:"书山有路勤为径",py:"shū shān yǒu lù qín wéi jìng",m:"diligence is the path through the mountain of books",hsk:5,t:"Proverb",ez:"书山有路勤为径，学海无涯苦作舟。",ep:"Shū shān yǒu lù qín wéi jìng.",ee:"Diligence is the path through the mountain of books."},
+  {c:"天道酬勤",py:"tiān dào chóu qín",m:"heaven rewards the diligent",hsk:5,t:"Chengyu",ez:"天道酬勤，坚持就是胜利。",ep:"Tiān dào chóu qín, jiānchí jiùshì shènglì.",ee:"Heaven rewards diligence — persistence is victory."},
+  {c:"活到老学到老",py:"huó dào lǎo xué dào lǎo",m:"live and learn",hsk:4,t:"Proverb",ez:"活到老学到老，学习永无止境。",ep:"Huó dào lǎo xué dào lǎo.",ee:"Live and learn — learning never ends."},
+  {c:"实践出真知",py:"shíjiàn chū zhēnzhī",m:"practice brings true knowledge",hsk:5,t:"Proverb",ez:"实践出真知，要多动手。",ep:"Shíjiàn chū zhēnzhī, yào duō dòngshǒu.",ee:"Practice brings true knowledge — do more hands-on work."},
+  {c:"举一反三",py:"jǔ yī fǎn sān",m:"draw inferences from one example",hsk:5,t:"Chengyu",ez:"聪明的学生能举一反三。",ep:"Cōngmíng de xuéshēng néng jǔ yī fǎn sān.",ee:"A smart student can draw inferences from one example."},
+  // ── Seasons, nature, life ───────────────────────────────────
+  {c:"春天",py:"chūntiān",m:"spring",hsk:2,t:"Noun",ez:"春天花开了。",ep:"Chūntiān huā kāi le.",ee:"Flowers bloom in spring."},
+  {c:"夏天",py:"xiàtiān",m:"summer",hsk:2,t:"Noun",ez:"夏天很热。",ep:"Xiàtiān hěn rè.",ee:"Summer is very hot."},
+  {c:"秋天",py:"qiūtiān",m:"autumn, fall",hsk:2,t:"Noun",ez:"秋天叶子变黄了。",ep:"Qiūtiān yèzi biàn huáng le.",ee:"In autumn the leaves turn yellow."},
+  {c:"冬天",py:"dōngtiān",m:"winter",hsk:2,t:"Noun",ez:"冬天会下雪。",ep:"Dōngtiān huì xià xuě.",ee:"It snows in winter."},
+  {c:"山水",py:"shānshuǐ",m:"landscape, mountains and water",hsk:3,t:"Noun",ez:"中国的山水非常美。",ep:"Zhōngguó de shānshuǐ fēicháng měi.",ee:"China's landscapes are extremely beautiful."},
+  {c:"阳光",py:"yángguāng",m:"sunlight, sunshine",hsk:3,t:"Noun",ez:"今天阳光明媚。",ep:"Jīntiān yángguāng míngmèi.",ee:"Today the sunshine is bright and beautiful."},
+  {c:"月亮",py:"yuèliàng",m:"the moon",hsk:2,t:"Noun",ez:"今晚月亮很圆。",ep:"Jīnwǎn yuèliàng hěn yuán.",ee:"Tonight the moon is very round."},
+  {c:"星星",py:"xīngxīng",m:"star",hsk:2,t:"Noun",ez:"夜空中有很多星星。",ep:"Yèkōng zhōng yǒu hěn duō xīngxīng.",ee:"There are many stars in the night sky."},
+  {c:"大海",py:"dàhǎi",m:"the ocean, the sea",hsk:3,t:"Noun",ez:"大海广阔无边。",ep:"Dàhǎi guǎngkuò wúbiān.",ee:"The ocean is vast and boundless."},
+  {c:"高山",py:"gāoshān",m:"high mountain",hsk:3,t:"Noun",ez:"他爬上了高山。",ep:"Tā pá shàng le gāoshān.",ee:"He climbed to the top of the mountain."},
+
+  // Extra variety — common & useful
+  {c:"笑",py:"xiào",m:"to smile, laugh",hsk:2,t:"Verb",ez:"她的笑容很美。",ep:"Tā de xiàoróng hěn měi.",ee:"Her smile is very beautiful."},
+  {c:"梦",py:"mèng",m:"dream",hsk:4,t:"Noun",ez:"我有一个梦想。",ep:"Wǒ yǒu yī gè mèngxiǎng.",ee:"I have a dream."},
+  {c:"静",py:"jìng",m:"quiet, still",hsk:3,t:"Adjective",ez:"夜晚很安静。",ep:"Yèwǎn hěn ānjìng.",ee:"The night is very quiet."},
+  {c:"美",py:"měi",m:"beautiful, America",hsk:2,t:"Adjective",ez:"春天的花很美。",ep:"Chūntiān de huā hěn měi.",ee:"The spring flowers are beautiful."},
+  {c:"茶",py:"chá",m:"tea",hsk:1,t:"Noun",ez:"中国茶文化很丰富。",ep:"Zhōngguó chá wénhuà hěn fēngfù.",ee:"Chinese tea culture is very rich."},
+  {c:"路",py:"lù",m:"road, path",hsk:2,t:"Noun",ez:"这条路很长。",ep:"Zhè tiáo lù hěn cháng.",ee:"This road is very long."},
+  {c:"心",py:"xīn",m:"heart, mind",hsk:2,t:"Noun",ez:"用心学习很重要。",ep:"Yòngxīn xuéxí hěn zhòngyào.",ee:"Studying wholeheartedly is very important."},
+  {c:"光",py:"guāng",m:"light, glory",hsk:3,t:"Noun",ez:"阳光照进房间。",ep:"Yángguāng zhào jìn fángjiān.",ee:"Sunlight shines into the room."},
+  {c:"风",py:"fēng",m:"wind, style",hsk:2,t:"Noun",ez:"今天风很大。",ep:"Jīntiān fēng hěn dà.",ee:"The wind is very strong today."},
+  {c:"雨",py:"yǔ",m:"rain",hsk:2,t:"Noun",ez:"今天下雨了。",ep:"Jīntiān xià yǔ le.",ee:"It is raining today."},
+  {c:"花",py:"huā",m:"flower, to spend",hsk:2,t:"Noun",ez:"公园里的花很漂亮。",ep:"Gōngyuán lǐ de huā hěn piàoliang.",ee:"The flowers in the park are very beautiful."},
+  {c:"力",py:"lì",m:"strength, force",hsk:2,t:"Noun",ez:"他很有力量。",ep:"Tā hěn yǒu lìliang.",ee:"He is very strong."},
+  {c:"真",py:"zhēn",m:"real, truly",hsk:2,t:"Adjective",ez:"这是真的吗？",ep:"Zhè shì zhēn de ma?",ee:"Is this real?"},
+  {c:"友",py:"yǒu",m:"friend, friendly",hsk:2,t:"Noun",ez:"朋友很重要。",ep:"Péngyǒu hěn zhòngyào.",ee:"Friends are very important."},
+  {c:"学",py:"xué",m:"to learn, study",hsk:1,t:"Verb",ez:"学习汉语很有趣。",ep:"Xuéxí Hànyǔ hěn yǒuqù.",ee:"Learning Chinese is very interesting."},
+  {c:"龙",py:"lóng",m:"dragon",hsk:3,t:"Noun",ez:"龙是中国的象征。",ep:"Lóng shì Zhōngguó de xiàngzhēng.",ee:"The dragon is a symbol of China."},
+  {c:"福",py:"fú",m:"good fortune, bless",hsk:4,t:"Noun",ez:"祝你幸福快乐。",ep:"Zhù nǐ xìngfú kuàilè.",ee:"I wish you happiness and joy."},
+  {c:"缘",py:"yuán",m:"fate, edge",hsk:5,t:"Noun",ez:"这是我们的缘分。",ep:"Zhè shì wǒmen de yuánfèn.",ee:"This is our fate/connection."},
+  {c:"志",py:"zhì",m:"ambition, will",hsk:4,t:"Noun",ez:"有志者事竟成。",ep:"Yǒu zhì zhě shì jìng chéng.",ee:"Where there is a will, there is a way."},
+  {c:"悟",py:"wù",m:"to realize, awaken",hsk:5,t:"Verb",ez:"他领悟了道理。",ep:"Tā lǐngwù le dàolǐ.",ee:"He understood the truth."},
+  {c:"缘",py:"yuán",m:"fate, reason",hsk:5,t:"Noun",ez:"人生中有很多缘分。",ep:"Rénshēng zhōng yǒu hěn duō yuánfèn.",ee:"There are many fated connections in life."},
+  {c:"智",py:"zhì",m:"wisdom, intelligent",hsk:4,t:"Noun",ez:"智慧来自经验。",ep:"Zhìhuì lái zì jīngyàn.",ee:"Wisdom comes from experience."},
+  {c:"仁",py:"rén",m:"benevolence, kind",hsk:6,t:"Noun",ez:"仁者爱人。",ep:"Rén zhě ài rén.",ee:"A benevolent person loves others."},
+  {c:"义",py:"yì",m:"righteousness",hsk:5,t:"Noun",ez:"义气很重要。",ep:"Yìqì hěn zhòngyào.",ee:"Righteousness and loyalty are very important."},
+  {c:"礼",py:"lǐ",m:"ritual, courtesy",hsk:5,t:"Noun",ez:"要有礼貌。",ep:"Yào yǒu lǐmào.",ee:"One must be polite."},
+  {c:"信",py:"xìn",m:"trust, letter",hsk:3,t:"Noun",ez:"诚信很重要。",ep:"Chéngxìn hěn zhòngyào.",ee:"Honesty and trust are very important."},
+// ── Food & daily life ──────────────────────────────────────
+  {c:"早饭",py:"zǎofàn",m:"breakfast",hsk:2,t:"Noun",ez:"我每天吃早饭。",ep:"Wǒ měitiān chī zǎofàn.",ee:"I eat breakfast every day."},
+  {c:"午饭",py:"wǔfàn",m:"lunch",hsk:2,t:"Noun",ez:"我们一起吃午饭吧。",ep:"Wǒmen yīqǐ chī wǔfàn ba.",ee:"Let's have lunch together."},
+  {c:"晚饭",py:"wǎnfàn",m:"dinner, supper",hsk:2,t:"Noun",ez:"晚饭准备好了。",ep:"Wǎnfàn zhǔnbèi hǎo le.",ee:"Dinner is ready."},
+  {c:"咖啡",py:"kāfēi",m:"coffee",hsk:2,t:"Noun",ez:"我喜欢喝咖啡。",ep:"Wǒ xǐhuān hē kāfēi.",ee:"I like drinking coffee."},
+  {c:"牛奶",py:"niúnǎi",m:"milk",hsk:2,t:"Noun",ez:"孩子每天喝牛奶。",ep:"Háizi měitiān hē niúnǎi.",ee:"Children drink milk every day."},
+  {c:"面条",py:"miàntiáo",m:"noodles",hsk:2,t:"Noun",ez:"我想吃一碗面条。",ep:"Wǒ xiǎng chī yī wǎn miàntiáo.",ee:"I want to eat a bowl of noodles."},
+  {c:"米饭",py:"mǐfàn",m:"cooked rice",hsk:1,t:"Noun",ez:"中国人爱吃米饭。",ep:"Zhōngguórén ài chī mǐfàn.",ee:"Chinese people love eating rice."},
+  {c:"饺子",py:"jiǎozi",m:"dumplings",hsk:3,t:"Noun",ez:"春节要吃饺子。",ep:"Chūnjié yào chī jiǎozi.",ee:"Dumplings are eaten during Spring Festival."},
+  {c:"火锅",py:"huǒguō",m:"hot pot",hsk:3,t:"Noun",ez:"冬天吃火锅很舒服。",ep:"Dōngtiān chī huǒguō hěn shūfu.",ee:"Eating hot pot in winter is very comfortable."},
+  {c:"包子",py:"bāozi",m:"steamed bun",hsk:3,t:"Noun",ez:"早饭我吃了两个包子。",ep:"Zǎofàn wǒ chī le liǎng gè bāozi.",ee:"I ate two steamed buns for breakfast."},
+  // ── Emotions & personality ──────────────────────────────────
+  {c:"开心",py:"kāixīn",m:"happy, joyful",hsk:3,t:"Adjective",ez:"今天我很开心。",ep:"Jīntiān wǒ hěn kāixīn.",ee:"I am very happy today."},
+  {c:"伤心",py:"shāngxīn",m:"sad, heartbroken",hsk:3,t:"Adjective",ez:"他听到消息很伤心。",ep:"Tā tīngdào xiāoxi hěn shāngxīn.",ee:"He was very sad to hear the news."},
+  {c:"生气",py:"shēngqì",m:"angry",hsk:3,t:"Verb",ez:"别生气，要冷静。",ep:"Bié shēngqì, yào lěngjìng.",ee:"Don't be angry, stay calm."},
+  {c:"紧张",py:"jǐnzhāng",m:"nervous, tense",hsk:3,t:"Adjective",ez:"考试前我很紧张。",ep:"Kǎoshì qián wǒ hěn jǐnzhāng.",ee:"I am very nervous before the exam."},
+  {c:"放松",py:"fàngsōng",m:"to relax",hsk:3,t:"Verb",ez:"周末要好好放松一下。",ep:"Zhōumò yào hǎohǎo fàngsōng yīxià.",ee:"You should relax well on the weekend."},
+  {c:"孤独",py:"gūdú",m:"lonely, solitary",hsk:4,t:"Adjective",ez:"他感到很孤独。",ep:"Tā gǎndào hěn gūdú.",ee:"He feels very lonely."},
+  {c:"骄傲",py:"jiāoào",m:"proud, arrogant",hsk:4,t:"Adjective",ez:"不要骄傲自满。",ep:"Búyào jiāoào zìmǎn.",ee:"Don't be proud and complacent."},
+  {c:"后悔",py:"hòuhuǐ",m:"to regret",hsk:4,t:"Verb",ez:"他后悔没有努力学习。",ep:"Tā hòuhuǐ méiyǒu nǔlì xuéxí.",ee:"He regrets not studying hard."},
+  {c:"感激",py:"gǎnjī",m:"grateful, thankful",hsk:4,t:"Adjective",ez:"我非常感激你的帮助。",ep:"Wǒ fēicháng gǎnjī nǐ de bāngzhù.",ee:"I am very grateful for your help."},
+  {c:"羡慕",py:"xiànmù",m:"to envy, admire",hsk:4,t:"Verb",ez:"我羡慕他的才华。",ep:"Wǒ xiànmù tā de cáihuá.",ee:"I admire his talent."},
+  // ── Travel & places ─────────────────────────────────────────
+  {c:"旅游",py:"lǚyóu",m:"to travel, tourism",hsk:3,t:"Verb",ez:"我喜欢旅游。",ep:"Wǒ xǐhuān lǚyóu.",ee:"I like to travel."},
+  {c:"酒店",py:"jiǔdiàn",m:"hotel",hsk:3,t:"Noun",ez:"我们住在五星级酒店。",ep:"Wǒmen zhù zài wǔxīngjí jiǔdiàn.",ee:"We are staying at a five-star hotel."},
+  {c:"机场",py:"jīchǎng",m:"airport",hsk:3,t:"Noun",ez:"我们要去机场。",ep:"Wǒmen yào qù jīchǎng.",ee:"We need to go to the airport."},
+  {c:"火车站",py:"huǒchēzhàn",m:"train station",hsk:2,t:"Noun",ez:"火车站在哪里？",ep:"Huǒchēzhàn zài nǎlǐ?",ee:"Where is the train station?"},
+  {c:"地铁",py:"dìtiě",m:"subway, metro",hsk:3,t:"Noun",ez:"坐地铁去市中心。",ep:"Zuò dìtiě qù shì zhōngxīn.",ee:"Take the subway to the city centre."},
+  {c:"出租车",py:"chūzūchē",m:"taxi",hsk:2,t:"Noun",ez:"我叫了一辆出租车。",ep:"Wǒ jiào le yī liàng chūzūchē.",ee:"I called a taxi."},
+  {c:"护照",py:"hùzhào",m:"passport",hsk:3,t:"Noun",ez:"出国要带护照。",ep:"Chūguó yào dài hùzhào.",ee:"You must bring your passport when going abroad."},
+  {c:"签证",py:"qiānzhèng",m:"visa",hsk:4,t:"Noun",ez:"去中国需要签证吗？",ep:"Qù Zhōngguó xūyào qiānzhèng ma?",ee:"Do you need a visa to go to China?"},
+  {c:"故宫",py:"Gùgōng",m:"the Forbidden City",hsk:4,t:"Noun",ez:"故宫是中国的著名景点。",ep:"Gùgōng shì Zhōngguó de zhùmíng jǐngdiǎn.",ee:"The Forbidden City is a famous attraction in China."},
+  {c:"万里长城",py:"Wànlǐ Chángchéng",m:"the Great Wall",hsk:4,t:"Noun",ez:"万里长城是世界奇迹。",ep:"Wànlǐ Chángchéng shì shìjiè qíjī.",ee:"The Great Wall is a wonder of the world."},
+  // ── Health & body ───────────────────────────────────────────
+  {c:"医生",py:"yīshēng",m:"doctor",hsk:1,t:"Noun",ez:"我去看医生了。",ep:"Wǒ qù kàn yīshēng le.",ee:"I went to see the doctor."},
+  {c:"生病",py:"shēngbìng",m:"to get sick, be ill",hsk:2,t:"Verb",ez:"他生病了，要休息。",ep:"Tā shēngbìng le, yào xiūxi.",ee:"He is sick and needs rest."},
+  {c:"头疼",py:"tóuténg",m:"headache",hsk:3,t:"Noun",ez:"我头疼，不能去上课。",ep:"Wǒ tóuténg, bùnéng qù shàngkè.",ee:"I have a headache and can't go to class."},
+  {c:"发烧",py:"fāshāo",m:"to have a fever",hsk:3,t:"Verb",ez:"孩子发烧了。",ep:"Háizi fāshāo le.",ee:"The child has a fever."},
+  {c:"感冒",py:"gǎnmào",m:"cold, flu",hsk:2,t:"Noun",ez:"我感冒了，头很疼。",ep:"Wǒ gǎnmào le, tóu hěn téng.",ee:"I have a cold, my head aches."},
+  {c:"手术",py:"shǒushù",m:"surgery, operation",hsk:4,t:"Noun",ez:"他做了一个手术。",ep:"Tā zuò le yī gè shǒushù.",ee:"He had an operation."},
+  {c:"营养",py:"yíngyǎng",m:"nutrition, nourishment",hsk:4,t:"Noun",ez:"要注意营养均衡。",ep:"Yào zhùyì yíngyǎng jūnhéng.",ee:"You must pay attention to balanced nutrition."},
+  {c:"睡眠",py:"shuìmián",m:"sleep",hsk:4,t:"Noun",ez:"充足的睡眠很重要。",ep:"Chōngzú de shuìmián hěn zhòngyào.",ee:"Adequate sleep is very important."},
+  // ── Education & study ───────────────────────────────────────
+  {c:"作业",py:"zuòyè",m:"homework",hsk:2,t:"Noun",ez:"我还没做作业。",ep:"Wǒ hái méi zuò zuòyè.",ee:"I haven't done my homework yet."},
+  {c:"考试",py:"kǎoshì",m:"exam, test",hsk:2,t:"Noun",ez:"明天有考试，要复习。",ep:"Míngtiān yǒu kǎoshì, yào fùxí.",ee:"There is an exam tomorrow, I need to review."},
+  {c:"复习",py:"fùxí",m:"to review, revise",hsk:2,t:"Verb",ez:"考试前要认真复习。",ep:"Kǎoshì qián yào rènzhēn fùxí.",ee:"You must review carefully before an exam."},
+  {c:"预习",py:"yùxí",m:"to preview, prepare",hsk:3,t:"Verb",ez:"上课前最好预习。",ep:"Shàngkè qián zuìhǎo yùxí.",ee:"It's best to prepare before class."},
+  {c:"笔记",py:"bǐjì",m:"notes",hsk:3,t:"Noun",ez:"上课要做笔记。",ep:"Shàngkè yào zuò bǐjì.",ee:"You should take notes in class."},
+  {c:"词典",py:"cídiǎn",m:"dictionary",hsk:3,t:"Noun",ez:"遇到不会的词可以查词典。",ep:"Yùdào bù huì de cí kěyǐ chá cídiǎn.",ee:"If you encounter an unknown word, look it up in a dictionary."},
+  {c:"毕业",py:"bìyè",m:"to graduate",hsk:3,t:"Verb",ez:"他今年大学毕业了。",ep:"Tā jīnnián dàxué bìyè le.",ee:"He graduated from university this year."},
+  {c:"留学",py:"liúxué",m:"to study abroad",hsk:4,t:"Verb",ez:"她去中国留学了。",ep:"Tā qù Zhōngguó liúxué le.",ee:"She went to China to study abroad."},
+  {c:"奖学金",py:"jiǎngxuéjīn",m:"scholarship",hsk:4,t:"Noun",ez:"他获得了奖学金。",ep:"Tā huòdé le jiǎngxuéjīn.",ee:"He received a scholarship."},
+  {c:"汉字",py:"Hànzì",m:"Chinese character",hsk:2,t:"Noun",ez:"汉字很有趣。",ep:"Hànzì hěn yǒuqù.",ee:"Chinese characters are very interesting."},
+  // ── Technology & modern life ────────────────────────────────
+  {c:"互联网",py:"hùliánwǎng",m:"the internet",hsk:4,t:"Noun",ez:"互联网改变了世界。",ep:"Hùliánwǎng gǎibiàn le shìjiè.",ee:"The internet has changed the world."},
+  {c:"社交媒体",py:"shèjiāo méitǐ",m:"social media",hsk:5,t:"Noun",ez:"社交媒体影响很大。",ep:"Shèjiāo méitǐ yǐngxiǎng hěn dà.",ee:"Social media has a very big influence."},
+  {c:"人工智能",py:"réngōng zhìnéng",m:"artificial intelligence",hsk:5,t:"Noun",ez:"人工智能发展很快。",ep:"Réngōng zhìnéng fāzhǎn hěn kuài.",ee:"AI is developing very quickly."},
+  {c:"大数据",py:"dà shùjù",m:"big data",hsk:5,t:"Noun",ez:"大数据改变了商业模式。",ep:"Dà shùjù gǎibiàn le shāngyè móshì.",ee:"Big data has changed the business model."},
+  {c:"应用程序",py:"yìngyòng chéngxù",m:"application, app",hsk:4,t:"Noun",ez:"这个应用程序很好用。",ep:"Zhège yìngyòng chéngxù hěn hǎoyòng.",ee:"This app is very useful."},
+  // ── Philosophy & wisdom ─────────────────────────────────────
+  {c:"道理",py:"dàolǐ",m:"truth, reason, principle",hsk:3,t:"Noun",ez:"你说的很有道理。",ep:"Nǐ shuō de hěn yǒu dàolǐ.",ee:"What you said makes a lot of sense."},
+  {c:"智慧",py:"zhìhuì",m:"wisdom",hsk:4,t:"Noun",ez:"老人有很多智慧。",ep:"Lǎorén yǒu hěn duō zhìhuì.",ee:"The elderly have a lot of wisdom."},
+  {c:"哲学",py:"zhéxué",m:"philosophy",hsk:5,t:"Noun",ez:"哲学帮助我们思考人生。",ep:"Zhéxué bāngzhù wǒmen sīkǎo rénshēng.",ee:"Philosophy helps us think about life."},
+  {c:"人生",py:"rénshēng",m:"life, human life",hsk:4,t:"Noun",ez:"人生短暂，要珍惜时间。",ep:"Rénshēng duǎnzàn, yào zhēnxī shíjiān.",ee:"Life is short, one must cherish time."},
+  {c:"命运",py:"mìngyùn",m:"fate, destiny",hsk:4,t:"Noun",ez:"我们要掌握自己的命运。",ep:"Wǒmen yào zhǎngwò zìjǐ de mìngyùn.",ee:"We must take control of our own destiny."},
+  {c:"坚强",py:"jiānqiáng",m:"strong, brave",hsk:3,t:"Adjective",ez:"面对困难要坚强。",ep:"Miànduì kùnnán yào jiānqiáng.",ee:"One must be strong when facing difficulties."},
+  {c:"勇气",py:"yǒngqì",m:"courage, bravery",hsk:4,t:"Noun",ez:"做事情需要勇气。",ep:"Zuò shìqíng xūyào yǒngqì.",ee:"Doing things requires courage."},
+  {c:"耐心",py:"nàixīn",m:"patience",hsk:3,t:"Noun",ez:"学习需要耐心。",ep:"Xuéxí xūyào nàixīn.",ee:"Learning requires patience."},
+  {c:"毅力",py:"yìlì",m:"willpower, perseverance",hsk:4,t:"Noun",ez:"成功需要毅力。",ep:"Chénggōng xūyào yìlì.",ee:"Success requires perseverance."},
+  {c:"初心",py:"chūxīn",m:"original intention, aspiration",hsk:5,t:"Noun",ez:"不忘初心，继续前行。",ep:"Bú wàng chūxīn, jìxù qián xíng.",ee:"Never forget your original intention, keep moving forward."},
+
+
+  // ── More everyday vocabulary ────────────────────────────────
+  {c:"天气",py:"tiānqì",m:"weather",hsk:1,t:"Noun",ez:"今天天气怎么样？",ep:"Jīntiān tiānqì zěnmeyàng?",ee:"What is the weather like today?"},
+  {c:"颜色",py:"yánsè",m:"colour",hsk:2,t:"Noun",ez:"你最喜欢什么颜色？",ep:"Nǐ zuì xǐhuān shénme yánsè?",ee:"What is your favourite colour?"},
+  {c:"数学",py:"shùxué",m:"mathematics",hsk:2,t:"Noun",ez:"数学很难学。",ep:"Shùxué hěn nán xué.",ee:"Mathematics is difficult to learn."},
+  {c:"音乐",py:"yīnyuè",m:"music",hsk:2,t:"Noun",ez:"我喜欢听音乐。",ep:"Wǒ xǐhuān tīng yīnyuè.",ee:"I like listening to music."},
+  {c:"电影",py:"diànyǐng",m:"film, movie",hsk:2,t:"Noun",ez:"我们去看电影吧。",ep:"Wǒmen qù kàn diànyǐng ba.",ee:"Let's go watch a movie."},
+  {c:"运动",py:"yùndòng",m:"sport, exercise",hsk:2,t:"Noun",ez:"每天运动对身体好。",ep:"Měitiān yùndòng duì shēntǐ hǎo.",ee:"Exercising every day is good for your body."},
+  {c:"足球",py:"zúqiú",m:"football, soccer",hsk:2,t:"Noun",ez:"他很喜欢踢足球。",ep:"Tā hěn xǐhuān tī zúqiú.",ee:"He loves playing football."},
+  {c:"游泳",py:"yóuyǒng",m:"to swim, swimming",hsk:2,t:"Verb",ez:"夏天我喜欢游泳。",ep:"Xiàtiān wǒ xǐhuān yóuyǒng.",ee:"I like swimming in summer."},
+  {c:"跑步",py:"pǎobù",m:"to run, jogging",hsk:2,t:"Verb",ez:"他每天早上跑步。",ep:"Tā měitiān zǎoshang pǎobù.",ee:"He goes running every morning."},
+  {c:"爬山",py:"páshān",m:"to climb a mountain",hsk:3,t:"Verb",ez:"周末我们去爬山。",ep:"Zhōumò wǒmen qù páshān.",ee:"We will go mountain climbing this weekend."},
+  {c:"画画",py:"huàhuà",m:"to draw, to paint",hsk:2,t:"Verb",ez:"她从小就喜欢画画。",ep:"Tā cóngxiǎo jiù xǐhuān huàhuà.",ee:"She has liked drawing since she was little."},
+  {c:"唱歌",py:"chànggē",m:"to sing",hsk:2,t:"Verb",ez:"她唱歌唱得很好。",ep:"Tā chànggē chàng de hěn hǎo.",ee:"She sings very well."},
+  {c:"跳舞",py:"tiàowǔ",m:"to dance",hsk:2,t:"Verb",ez:"她会跳中国舞。",ep:"Tā huì tiào Zhōngguó wǔ.",ee:"She can perform Chinese dance."},
+  {c:"钢琴",py:"gāngqín",m:"piano",hsk:3,t:"Noun",ez:"她学了十年钢琴。",ep:"Tā xué le shí nián gāngqín.",ee:"She has studied piano for ten years."},
+  {c:"书法",py:"shūfǎ",m:"calligraphy",hsk:4,t:"Noun",ez:"书法是中国传统艺术。",ep:"Shūfǎ shì Zhōngguó chuántǒng yìshù.",ee:"Calligraphy is a traditional Chinese art."},
+  // ── Work & career ───────────────────────────────────────────
+  {c:"简历",py:"jiǎnlì",m:"CV, résumé",hsk:4,t:"Noun",ez:"我发了简历给公司。",ep:"Wǒ fā le jiǎnlì gěi gōngsī.",ee:"I sent my CV to the company."},
+  {c:"面试",py:"miànshì",m:"interview",hsk:4,t:"Noun",ez:"明天我有一个面试。",ep:"Míngtiān wǒ yǒu yī gè miànshì.",ee:"I have an interview tomorrow."},
+  {c:"薪水",py:"xīnshuǐ",m:"salary, wages",hsk:4,t:"Noun",ez:"他的薪水很高。",ep:"Tā de xīnshuǐ hěn gāo.",ee:"His salary is very high."},
+  {c:"升职",py:"shēngzhí",m:"to get promoted",hsk:4,t:"Verb",ez:"他今年升职了。",ep:"Tā jīnnián shēngzhí le.",ee:"He got promoted this year."},
+  {c:"同事",py:"tóngshì",m:"colleague",hsk:3,t:"Noun",ez:"我和同事关系很好。",ep:"Wǒ hé tóngshì guānxi hěn hǎo.",ee:"I have a good relationship with my colleagues."},
+  {c:"会议",py:"huìyì",m:"meeting, conference",hsk:3,t:"Noun",ez:"下午有一个重要会议。",ep:"Xiàwǔ yǒu yī gè zhòngyào huìyì.",ee:"There is an important meeting this afternoon."},
+  {c:"报告",py:"bàogào",m:"report",hsk:3,t:"Noun",ez:"我写了一份报告。",ep:"Wǒ xiě le yī fèn bàogào.",ee:"I wrote a report."},
+  {c:"合同",py:"hétong",m:"contract",hsk:4,t:"Noun",ez:"我们签了合同。",ep:"Wǒmen qiān le hétong.",ee:"We signed the contract."},
+  {c:"项目",py:"xiàngmù",m:"project",hsk:4,t:"Noun",ez:"这个项目很重要。",ep:"Zhège xiàngmù hěn zhòngyào.",ee:"This project is very important."},
+  {c:"客户",py:"kèhù",m:"client, customer",hsk:4,t:"Noun",ez:"我们要重视客户的需求。",ep:"Wǒmen yào zhòngshì kèhù de xūqiú.",ee:"We must value the needs of our clients."},
+  // ── Money & shopping ────────────────────────────────────────
+  {c:"便宜",py:"piányí",m:"cheap, inexpensive",hsk:2,t:"Adjective",ez:"这件衣服很便宜。",ep:"Zhè jiàn yīfú hěn piányí.",ee:"This piece of clothing is very cheap."},
+  {c:"打折",py:"dǎzhé",m:"to discount, sale",hsk:3,t:"Verb",ez:"现在打折，买吧！",ep:"Xiànzài dǎzhé, mǎi ba!",ee:"It's on sale now, buy it!"},
+  {c:"免费",py:"miǎnfèi",m:"free of charge",hsk:3,t:"Adjective",ez:"这个软件是免费的。",ep:"Zhège ruǎnjiàn shì miǎnfèi de.",ee:"This software is free."},
+  {c:"付款",py:"fùkuǎn",m:"to pay, payment",hsk:3,t:"Verb",ez:"可以用手机付款吗？",ep:"Kěyǐ yòng shǒujī fùkuǎn ma?",ee:"Can I pay with my phone?"},
+  {c:"退款",py:"tuìkuǎn",m:"refund",hsk:4,t:"Noun",ez:"我申请了退款。",ep:"Wǒ shēnqǐng le tuìkuǎn.",ee:"I applied for a refund."},
+  {c:"发票",py:"fāpiào",m:"invoice, receipt",hsk:4,t:"Noun",ez:"请给我开发票。",ep:"Qǐng gěi wǒ kāi fāpiào.",ee:"Please give me a receipt."},
+  // ── Chinese culture ─────────────────────────────────────────
+  {c:"春节",py:"Chūnjié",m:"Spring Festival, Chinese New Year",hsk:3,t:"Noun",ez:"春节是中国最重要的节日。",ep:"Chūnjié shì Zhōngguó zuì zhòngyào de jiérì.",ee:"Spring Festival is the most important holiday in China."},
+  {c:"中秋节",py:"Zhōngqiūjié",m:"Mid-Autumn Festival",hsk:3,t:"Noun",ez:"中秋节要吃月饼。",ep:"Zhōngqiūjié yào chī yuèbǐng.",ee:"Mooncakes are eaten during the Mid-Autumn Festival."},
+  {c:"月饼",py:"yuèbǐng",m:"mooncake",hsk:3,t:"Noun",ez:"月饼是中秋节的传统食品。",ep:"Yuèbǐng shì Zhōngqiūjié de chuántǒng shípǐn.",ee:"Mooncakes are the traditional food of the Mid-Autumn Festival."},
+  {c:"红包",py:"hóngbāo",m:"red envelope (gift of money)",hsk:3,t:"Noun",ez:"过年收到了很多红包。",ep:"Guònián shōudào le hěn duō hóngbāo.",ee:"I received many red envelopes during the New Year."},
+  {c:"太极",py:"tàijí",m:"Tai Chi",hsk:4,t:"Noun",ez:"很多老人每天打太极。",ep:"Hěn duō lǎorén měitiān dǎ tàijí.",ee:"Many elderly people practise Tai Chi every day."},
+  {c:"功夫",py:"gōngfu",m:"kung fu, martial arts, skill",hsk:3,t:"Noun",ez:"功夫是中国的传统武术。",ep:"Gōngfu shì Zhōngguó de chuántǒng wǔshù.",ee:"Kung fu is a traditional Chinese martial art."},
+  {c:"国画",py:"guóhuà",m:"Chinese painting",hsk:4,t:"Noun",ez:"国画是中国的传统艺术。",ep:"Guóhuà shì Zhōngguó de chuántǒng yìshù.",ee:"Chinese painting is a traditional Chinese art."},
+  {c:"京剧",py:"jīngjù",m:"Peking Opera",hsk:4,t:"Noun",ez:"京剧是中国的国粹。",ep:"Jīngjù shì Zhōngguó de guócuì.",ee:"Peking Opera is the quintessence of Chinese culture."},
+  {c:"茶道",py:"chádào",m:"tea ceremony",hsk:4,t:"Noun",ez:"茶道体现了中国文化。",ep:"Chádào tǐxiàn le Zhōngguó wénhuà.",ee:"The tea ceremony embodies Chinese culture."},
+  {c:"风水",py:"fēngshuǐ",m:"feng shui, geomancy",hsk:5,t:"Noun",ez:"风水在中国文化中很重要。",ep:"Fēngshuǐ zài Zhōngguó wénhuà zhōng hěn zhòngyào.",ee:"Feng shui is very important in Chinese culture."},
+  // ── Grammar & discourse ─────────────────────────────────────
+  {c:"换句话说",py:"huàn jù huà shuō",m:"in other words",hsk:4,t:"Phrase",ez:"换句话说，他不想去。",ep:"Huàn jù huà shuō, tā bù xiǎng qù.",ee:"In other words, he doesn't want to go."},
+  {c:"总的来说",py:"zǒng de lái shuō",m:"generally speaking",hsk:4,t:"Phrase",ez:"总的来说，结果很好。",ep:"Zǒng de lái shuō, jiéguǒ hěn hǎo.",ee:"Generally speaking, the result is very good."},
+  {c:"举个例子",py:"jǔ gè lìzi",m:"for example, take for example",hsk:3,t:"Phrase",ez:"举个例子来说明。",ep:"Jǔ gè lìzi lái shuōmíng.",ee:"Let me give an example to illustrate."},
+  {c:"相反",py:"xiāngfǎn",m:"on the contrary, opposite",hsk:4,t:"Adverb",ez:"相反，他觉得很容易。",ep:"Xiāngfǎn, tā juédé hěn róngyì.",ee:"On the contrary, he finds it very easy."},
+  {c:"此外",py:"cǐwài",m:"in addition, furthermore",hsk:4,t:"Conjunction",ez:"此外，我们还需要考虑费用。",ep:"Cǐwài, wǒmen hái xūyào kǎolǜ fèiyòng.",ee:"In addition, we also need to consider the cost."},
+  {c:"不仅…而且",py:"bù jǐn…érqiě",m:"not only…but also",hsk:4,t:"Conjunction",ez:"他不仅聪明，而且努力。",ep:"Tā bù jǐn cōngmíng, érqiě nǔlì.",ee:"He is not only smart, but also hardworking."},
+  {c:"宁可",py:"nìngkě",m:"would rather, prefer",hsk:5,t:"Adverb",ez:"我宁可走路，也不坐车。",ep:"Wǒ nìngkě zǒulù, yě bù zuò chē.",ee:"I would rather walk than take a car."},
+  {c:"即使",py:"jíshǐ",m:"even if",hsk:4,t:"Conjunction",ez:"即使下雨，我也要去。",ep:"Jíshǐ xià yǔ, wǒ yě yào qù.",ee:"Even if it rains, I will still go."},
+  {c:"尽管",py:"jǐnguǎn",m:"despite, although",hsk:4,t:"Conjunction",ez:"尽管很难，他还是坚持了。",ep:"Jǐnguǎn hěn nán, tā háishi jiānchí le.",ee:"Despite the difficulty, he persisted."},
+  {c:"反而",py:"fǎnér",m:"on the contrary, instead",hsk:4,t:"Adverb",ez:"不但没好转，反而更糟了。",ep:"Bùdàn méi hǎozhuǎn, fǎnér gèng zāo le.",ee:"Not only did it not improve, it got worse instead."},,
+];
+
+// ─────────────────────────────────────────────────────────────
+//  Pick word based on day of year — same word all day, new word
+//  at midnight, deterministic so everyone gets same word
+// ─────────────────────────────────────────────────────────────
+function getDayOfYear() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff = now - start;
+  const oneDay = 86400000;
+  return Math.floor(diff / oneDay);
+}
+
+function getTodayWord() {
+  const day = getDayOfYear();
+  return WORDS[day % WORDS.length];
+
+}
+
+function formatDate(d) {
+  return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+}
+
+function init() {
+  const now = new Date();
+  const w = getTodayWord();
+  const day = getDayOfYear();
+  const totalDays = 365;
+  const pct = Math.round((day / totalDays) * 100);
+
+  // Date badge
+  document.getElementById('dateBadge').textContent = formatDate(now);
+
+  // Character
+  document.getElementById('charBg').textContent = w.c;
+  document.getElementById('charMain').textContent = w.c;
+  document.getElementById('pinyin').textContent = w.py;
+  document.getElementById('meaning').textContent = w.m;
+
+  // Tags
+  const hskLabel = w.hsk >= 7 ? 'HSK 7–9' : `HSK ${w.hsk}`;
+  document.getElementById('tagHsk').textContent = hskLabel;
+  document.getElementById('tagType').textContent = w.t;
+
+  // Example
+  document.getElementById('exZh').textContent = w.ez;
+  document.getElementById('exPy').textContent = w.ep;
+  document.getElementById('exEn').textContent = w.ee;
+
+  // Progress — day of year
+  document.getElementById('progressLabel').textContent = `Word ${day}`;
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  // Next word countdown
+  const midnight = new Date(now);
+  midnight.setHours(24, 0, 0, 0);
+  const hoursLeft = Math.floor((midnight - now) / 3600000);
+  const minsLeft  = Math.floor(((midnight - now) % 3600000) / 60000);
+  document.getElementById('nextWord').textContent =
+    `Next word in ${hoursLeft}h ${minsLeft}m`;
+}
+
+function share() {
+  const w = getTodayWord();
+  const text = `Today's Mandarin Zest word of the day: ${w.c} (${w.py}) — ${w.m} 🇨🇳\n\nExample: ${w.ez}\n${w.ee}\n\nLearn Chinese at MandarinZest.com`;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('.share-btn');
+      btn.textContent = 'Copied! ✓';
+      setTimeout(() => btn.textContent = 'Share ↗', 2000);
+    });
+  }
+}
+
+init();
+</script>
+</body>
+</html>
